@@ -1,5 +1,7 @@
 package org.carlspring.strongbox.janusgraph.cassandra;
 
+import java.util.Collections;
+
 import org.apache.cassandra.config.Config;
 import org.apache.cassandra.config.Config.CommitLogSync;
 import org.apache.cassandra.config.Config.DiskFailurePolicy;
@@ -9,19 +11,17 @@ import org.apache.cassandra.exceptions.ConfigurationException;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
-import java.util.Collections;
-
 @Component
-@ConfigurationProperties( prefix = "org.carlspring.strongbox.cassandra" )
+@ConfigurationProperties(prefix = "org.carlspring.strongbox.cassandra")
 public class CassandraEmbeddedProperties implements ConfigurationLoader
 {
 
-    private static final Config config;
+    private static Config config;
 
-    static
+    public CassandraEmbeddedProperties()
     {
         config = new Config();
-
+        
         config.cluster_name = "Test Cluster";
         config.hinted_handoff_enabled = true;
         config.max_hint_window_in_ms = 10800000; // 3 hours
@@ -32,7 +32,7 @@ public class CassandraEmbeddedProperties implements ConfigurationLoader
         config.authorizer = "AllowAllAuthorizer";
         config.permissions_validity_in_ms = 2000;
         config.partitioner = "org.apache.cassandra.dht.Murmur3Partitioner";
-        config.data_file_directories = new String[] {"target/embeddedCassandra/data"};
+        config.data_file_directories = new String[] { "target/embeddedCassandra/data" };
         config.commitlog_directory = "target/embeddedCassandra/commitlog";
         config.cdc_raw_directory = "target/embeddedCassandra/cdc";
         config.disk_failure_policy = DiskFailurePolicy.stop;
@@ -43,8 +43,8 @@ public class CassandraEmbeddedProperties implements ConfigurationLoader
         config.commitlog_sync = CommitLogSync.periodic;
         config.commitlog_sync_period_in_ms = 10000;
         config.commitlog_segment_size_in_mb = 32;
-        config.seed_provider = new ParameterizedClass( "org.apache.cassandra.locator.SimpleSeedProvider",
-                Collections.singletonMap( "seeds", "127.0.0.1" ) );
+        config.seed_provider = new ParameterizedClass("org.apache.cassandra.locator.SimpleSeedProvider",
+                Collections.singletonMap("seeds", "127.0.0.1"));
         config.concurrent_reads = 32;
         config.concurrent_writes = 32;
         config.trickle_fsync = false;
@@ -76,10 +76,11 @@ public class CassandraEmbeddedProperties implements ConfigurationLoader
     }
 
     @Override
-    public Config loadConfig() throws ConfigurationException
+    public Config loadConfig()
+        throws ConfigurationException
     {
         return config;
     }
 
-
+    
 }

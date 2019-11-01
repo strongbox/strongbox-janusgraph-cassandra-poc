@@ -1,11 +1,12 @@
 package org.carlspring.strongbox.janusgraph.cassandra;
 
-import org.apache.cassandra.service.EmbeddedCassandraService;
+import java.io.IOException;
+
+import org.apache.cassandra.config.DatabaseDescriptor;
+import org.apache.cassandra.service.CassandraDaemon;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-
-import java.io.IOException;
 
 @Configuration
 @ComponentScan
@@ -13,18 +14,23 @@ public class CassandraEmbeddedConfig
 {
 
     @Bean
-    public EmbeddedCassandraService embeddedCassandraService() throws IOException
+    public CassandraDaemon cassandraDaemon(CassandraEmbeddedProperties properties)
+        throws IOException
     {
-        System.setProperty( "cassandra.config.loader", "org.carlspring.strongbox.janusgraph.cassandra.CassandraEmbeddedProperties" );
 
-        System.setProperty( "cassandra-foreground", "true" );
-        System.setProperty( "cassandra.native.epoll.enabled", "false" );
-        System.setProperty( "cassandra.unsafesystem", "true" );
+        System.setProperty("cassandra.config.loader",
+                           "org.carlspring.strongbox.janusgraph.cassandra.CassandraEmbeddedProperties");
 
-        EmbeddedCassandraService cassandra = new EmbeddedCassandraService();
-        cassandra.start();
+        System.setProperty("cassandra-foreground", "true");
+        System.setProperty("cassandra.native.epoll.enabled", "false");
+        System.setProperty("cassandra.unsafesystem", "true");
 
-        return cassandra;
+        DatabaseDescriptor.daemonInitialization();
+
+        CassandraDaemon cassandraDaemon = new CassandraDaemon();
+        cassandraDaemon.activate();
+
+        return cassandraDaemon;
     }
 
 }
