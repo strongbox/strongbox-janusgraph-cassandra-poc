@@ -1,0 +1,3 @@
+strongbox:
+  cassandra:
+    port: 49142

@@ -4,22 +4,23 @@ import java.io.IOException;
 
 import org.apache.cassandra.config.DatabaseDescriptor;
 import org.apache.cassandra.service.CassandraDaemon;
+import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @ComponentScan
+@ConfigurationPropertiesScan
 public class CassandraEmbeddedConfig
 {
 
     @Bean
     public CassandraDaemon cassandraDaemon(CassandraEmbeddedProperties properties)
-        throws IOException
+        throws IOException, ClassNotFoundException
     {
-
         System.setProperty("cassandra.config.loader",
-                           "org.carlspring.strongbox.janusgraph.cassandra.CassandraEmbeddedProperties");
+                           "org.carlspring.strongbox.janusgraph.cassandra.CassandraEmbeddedPropertiesLoader");
 
         System.setProperty("cassandra-foreground", "true");
         System.setProperty("cassandra.native.epoll.enabled", "false");

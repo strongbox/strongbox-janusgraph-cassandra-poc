@@ -1,27 +1,24 @@
 package org.carlspring.strongbox.janusgraph.cassandra;
 
+import static org.carlspring.strongbox.janusgraph.cassandra.CassandraEmbeddedPropertiesLoader.config;
+
 import java.util.Collections;
 
-import org.apache.cassandra.config.Config;
 import org.apache.cassandra.config.Config.CommitLogSync;
 import org.apache.cassandra.config.Config.DiskFailurePolicy;
-import org.apache.cassandra.config.ConfigurationLoader;
 import org.apache.cassandra.config.ParameterizedClass;
-import org.apache.cassandra.exceptions.ConfigurationException;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.stereotype.Component;
+import org.springframework.boot.context.properties.ConstructorBinding;
 
-@Component
-@ConfigurationProperties(prefix = "org.carlspring.strongbox.cassandra")
-public class CassandraEmbeddedProperties implements ConfigurationLoader
+@ConstructorBinding
+@ConfigurationProperties(prefix = "strongbox.cassandra")
+public class CassandraEmbeddedProperties
 {
 
-    private static Config config;
-
-    public CassandraEmbeddedProperties()
+    public CassandraEmbeddedProperties(int port)
     {
-        config = new Config();
-        
+        //config = new Config();
+
         config.cluster_name = "Test Cluster";
         config.hinted_handoff_enabled = true;
         config.max_hint_window_in_ms = 10800000; // 3 hours
@@ -52,8 +49,10 @@ public class CassandraEmbeddedProperties implements ConfigurationLoader
         config.storage_port = 7010;
         config.ssl_storage_port = 7011;
         config.listen_address = "127.0.0.1";
+
         config.start_native_transport = true;
-        config.native_transport_port = 9142;
+        config.native_transport_port = port;
+
         config.start_rpc = false;
         config.incremental_backups = false;
         config.snapshot_before_compaction = false;
@@ -75,12 +74,4 @@ public class CassandraEmbeddedProperties implements ConfigurationLoader
         config.index_interval = 128;
     }
 
-    @Override
-    public Config loadConfig()
-        throws ConfigurationException
-    {
-        return config;
-    }
-
-    
 }
