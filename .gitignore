@@ -42,3 +42,4 @@ logs/
 lib/*
 *.sh
 .idea
+.toDelete

@@ -1,6 +1,8 @@
 package org.carlspring.strongbox.janusgraph.cassandra;
 
 import org.apache.cassandra.service.EmbeddedCassandraService;
+import org.janusgraph.core.JanusGraph;
+import org.janusgraph.core.JanusGraphFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -23,6 +25,12 @@ public class CassandraEmbeddedConfig
 
         EmbeddedCassandraService cassandra = new EmbeddedCassandraService();
         cassandra.start();
+
+        JanusGraph g = JanusGraphFactory.build().
+                set("storage.backend", "cql").
+                set("storage.hostname", "127.0.0.1").
+                set("storage.port", "9142").
+                open();
 
         return cassandra;
     }
