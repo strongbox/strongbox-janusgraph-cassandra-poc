@@ -25,8 +25,15 @@ pipeline {
         stage('Build') {
             steps {
                 script {
-                    contains("maven") {
-                        sh "mvn clean install"
+                    container("maven") {
+                        withMavenPlus(
+                            timestamps: true,
+                            mavenLocalRepo: workspace().getM2LocalRepoPath(),
+                            mavenSettingsConfig: '67aaee2b-ca74-4ae1-8eb9-c8f16eb5e534',
+                            publisherStrategy: 'EXPLICIT'
+                        ) {
+                            sh "mvn clean install"
+                        }
                     }
                 }
             }
