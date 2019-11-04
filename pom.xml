@@ -31,6 +31,7 @@
             <artifactId>spring-boot-devtools</artifactId>
             <optional>true</optional>
         </dependency>
+
         <!-- The required Maven dependency for Cassandra -->
         <dependency>
             <groupId>org.janusgraph</groupId>
@@ -48,19 +49,6 @@
             <version>3.2.2</version>
         </dependency>
 
-        <!--
-        <dependency>
-            <groupId>org.janusgraph</groupId>
-            <artifactId>janusgraph-cassandra</artifactId>
-            <version>${janusgraph.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>net.java.dev.jna</groupId>
-            <artifactId>jna</artifactId>
-            <version>4.2.2</version>
-        </dependency>
-        -->
-
         <!-- The required Maven dependency for Elasticsearch: -->
         <dependency>
             <groupId>org.janusgraph</groupId>
@@ -72,6 +60,13 @@
             <groupId>org.apache.tinkerpop</groupId>
             <artifactId>gremlin-driver</artifactId>
             <version>${tinkerpop.verion}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.10</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 
