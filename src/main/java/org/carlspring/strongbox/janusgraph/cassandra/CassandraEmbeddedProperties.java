@@ -1,12 +1,14 @@
 package org.carlspring.strongbox.janusgraph.cassandra;
 
-import static org.carlspring.strongbox.janusgraph.cassandra.CassandraEmbeddedPropertiesLoader.config;
-
 import java.util.Collections;
+import java.util.Objects;
 
+import org.apache.cassandra.config.Config;
 import org.apache.cassandra.config.Config.CommitLogSync;
 import org.apache.cassandra.config.Config.DiskFailurePolicy;
+import org.apache.cassandra.config.ConfigurationLoader;
 import org.apache.cassandra.config.ParameterizedClass;
+import org.apache.cassandra.exceptions.ConfigurationException;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.ConstructorBinding;
 
@@ -15,10 +17,13 @@ import org.springframework.boot.context.properties.ConstructorBinding;
 public class CassandraEmbeddedProperties
 {
 
+    private static Config config;
+
     public CassandraEmbeddedProperties(int port)
     {
-        //config = new Config();
-
+        Objects.isNull(config);
+        
+        config = new Config();
         config.cluster_name = "Test Cluster";
         config.hinted_handoff_enabled = true;
         config.max_hint_window_in_ms = 10800000; // 3 hours
@@ -74,4 +79,16 @@ public class CassandraEmbeddedProperties
         config.index_interval = 128;
     }
 
+    public static class CassandraEmbeddedPropertiesLoader implements ConfigurationLoader
+    {
+        @Override
+        public Config loadConfig()
+            throws ConfigurationException
+        {
+            Objects.nonNull(config);
+            
+            return config;
+        }
+
+    }
 }
