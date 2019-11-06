@@ -2,10 +2,9 @@ package org.carlspring.strongbox.janusgraph.cassandra;
 
 import java.io.IOException;
 
-import javax.inject.Inject;
-
 import org.apache.cassandra.service.CassandraDaemon;
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
@@ -15,8 +14,8 @@ import org.springframework.context.annotation.Configuration;
 public class CassandraEmbeddedConfig
 {
 
-    @Inject
-    public void activateCassandraDaemon(CassandraEmbeddedProperties properties)
+    @Bean(destroyMethod = "destroy")
+    public CassandraDaemon activateCassandraDaemon(CassandraEmbeddedProperties properties)
         throws IOException,
         ClassNotFoundException
     {
@@ -29,6 +28,8 @@ public class CassandraEmbeddedConfig
 
         CassandraDaemon cassandraDaemon = new CassandraDaemon();
         cassandraDaemon.activate();
+
+        return cassandraDaemon;
     }
 
 }
