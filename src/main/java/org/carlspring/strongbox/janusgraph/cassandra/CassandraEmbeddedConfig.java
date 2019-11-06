@@ -14,7 +14,7 @@ import org.springframework.context.annotation.Configuration;
 public class CassandraEmbeddedConfig
 {
 
-    @Bean(destroyMethod = "destroy")
+    @Bean(destroyMethod = "deactivate")
     public CassandraDaemon activateCassandraDaemon(CassandraEmbeddedProperties properties)
         throws IOException,
         ClassNotFoundException
