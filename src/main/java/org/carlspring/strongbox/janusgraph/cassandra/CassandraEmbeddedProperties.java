@@ -22,7 +22,7 @@ public class CassandraEmbeddedProperties
     public CassandraEmbeddedProperties(int port)
     {
         Objects.isNull(config);
-        
+
         config = new Config();
         config.cluster_name = "Test Cluster";
         config.hinted_handoff_enabled = true;
@@ -79,6 +79,11 @@ public class CassandraEmbeddedProperties
         config.index_interval = 128;
     }
 
+    public int getPort()
+    {
+        return config.native_transport_port;
+    }
+
     public static class CassandraEmbeddedPropertiesLoader implements ConfigurationLoader
     {
         @Override
@@ -86,7 +91,7 @@ public class CassandraEmbeddedProperties
             throws ConfigurationException
         {
             Objects.nonNull(config);
-            
+
             return config;
         }
 
