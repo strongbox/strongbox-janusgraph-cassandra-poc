@@ -1,3 +1,5 @@
+server:
+  port: 58080
 strongbox:
   cassandra:
     port: 49142
