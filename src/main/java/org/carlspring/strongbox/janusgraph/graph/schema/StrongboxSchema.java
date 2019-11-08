@@ -9,7 +9,6 @@ import org.carlspring.strongbox.janusgraph.domain.ArtifactCoordinates;
 import org.carlspring.strongbox.janusgraph.domain.ArtifactEntry;
 import org.janusgraph.core.Cardinality;
 import org.janusgraph.core.JanusGraph;
-import org.janusgraph.core.JanusGraphFactory;
 import org.janusgraph.core.Multiplicity;
 import org.janusgraph.core.schema.JanusGraphManagement;
 import org.slf4j.Logger;
@@ -23,9 +22,8 @@ public class StrongboxSchema
     private static final Logger logger = LoggerFactory.getLogger(StrongboxSchema.class);
 
     @Inject
-    public void createSchema(JanusGraphFactory.Builder jgf)
+    public void createSchema(JanusGraph jg)
     {
-        JanusGraph jg = jgf.open();
         JanusGraphManagement jgm = jg.openManagement();
         try
         {
