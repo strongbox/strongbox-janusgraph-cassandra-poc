@@ -19,6 +19,8 @@
         <cassandra.version>3.11.4</cassandra.version>
         <tinkerpop.verion>3.4.4</tinkerpop.verion>
         <java.version>1.8</java.version>
+        <elasticsearch.port.rest>9200</elasticsearch.port.rest>
+        <elasticsearch.port.api>9300</elasticsearch.port.api>
     </properties>
 
     <dependencies>
@@ -40,6 +42,11 @@
         <dependency>
             <groupId>org.janusgraph</groupId>
             <artifactId>janusgraph-cql</artifactId>
+            <version>${janusgraph.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.janusgraph</groupId>
+            <artifactId>janusgraph-es</artifactId>
             <version>${janusgraph.version}</version>
         </dependency>
         <dependency>
@@ -98,7 +105,42 @@
                     <mainClass>org.carlspring.strongbox.janusgraph.app.Application</mainClass>
                 </configuration>
             </plugin>
-
+            <plugin>
+                <groupId>io.fabric8</groupId>
+                <artifactId>docker-maven-plugin</artifactId>
+                <version>0.31.0</version>
+                <configuration>
+                    <images>
+                        <image>
+                            <alias>elasticsearch</alias>
+                            <name>docker.elastic.co/elasticsearch/elasticsearch:6.8.4</name>
+                            <run>
+                                <ports>
+                                    <port>elasticsearch.port.rest:9200</port>
+                                    <port>elasticsearch.port.api:9300</port>
+                                </ports>
+                                <wait>
+                                    <http>
+                                        <url>http://${docker.host.address}:${elasticsearch.port.rest}/_cat/indices</url>
+                                        <method>GET</method>
+                                    </http>
+                                    <time>60000</time>
+                                </wait>
+                            </run>
+                        </image>
+                    </images>
+                </configuration>
+                <executions>
+                    <!--
+                    <execution>
+                        <id>default-testCompile</id>
+                        <phase>test-compile</phase>
+                        <goals>
+                            <goal>start</goal>
+                        </goals>
+                    </execution> -->
+                </executions>
+            </plugin>
         </plugins>
     </build>
 
