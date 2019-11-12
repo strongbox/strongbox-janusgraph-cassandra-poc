@@ -3,6 +3,10 @@ package org.carlspring.strongbox.janusgraph.domain;
 import java.util.Date;
 import java.util.Set;
 
+import org.neo4j.ogm.annotation.NodeEntity;
+import org.neo4j.ogm.annotation.Relationship;
+
+@NodeEntity
 public class ArtifactEntry extends DomainEntity
 {
 
@@ -11,6 +15,7 @@ public class ArtifactEntry extends DomainEntity
     private Long sizeInBytes;
     private Date created;
     private Set<String> tags;
+    @Relationship(type = "ArtifactEntry#ArtifactCoordinates", direction = Relationship.INCOMING)
     private ArtifactCoordinates artifactCoordinates;
 
     public String getStorageId()

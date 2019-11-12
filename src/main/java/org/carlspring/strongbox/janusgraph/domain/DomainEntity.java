@@ -1,18 +1,19 @@
 package org.carlspring.strongbox.janusgraph.domain;
 
-import java.util.UUID;
+import org.neo4j.ogm.annotation.Id;
 
 public class DomainEntity
 {
 
-    private UUID uuid;
+    @Id
+    private String uuid;
 
-    public UUID getUuid()
+    public String getUuid()
     {
         return uuid;
     }
 
-    public void setUuid(UUID uuid)
+    public void setUuid(String uuid)
     {
         this.uuid = uuid;
     }

@@ -44,7 +44,7 @@ public class StrongboxSchema
     private void applySchemaChanges(JanusGraphManagement jgm)
     {
         // Properties
-        jgm.makePropertyKey("uuid").dataType(UUID.class).make();
+        jgm.makePropertyKey("uuid").dataType(String.class).make();
         jgm.makePropertyKey("storageId").dataType(String.class).make();
         jgm.makePropertyKey("repositoryId").dataType(String.class).make();
         jgm.makePropertyKey("sizeInBytes").dataType(Long.class).make();

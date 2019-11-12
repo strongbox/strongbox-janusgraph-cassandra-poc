@@ -1,5 +1,8 @@
 package org.carlspring.strongbox.janusgraph.domain;
 
+import org.neo4j.ogm.annotation.NodeEntity;
+
+@NodeEntity
 public class ArtifactCoordinates extends DomainEntity
 {
 
