@@ -20,7 +20,8 @@
         <tinkerpop.verion>3.4.4</tinkerpop.verion>
         <java.version>1.8</java.version>
         <elasticsearch.port.rest>9200</elasticsearch.port.rest>
-        <elasticsearch.port.api>9300</elasticsearch.port.api>
+        <elasticsearch.port.transport>9300</elasticsearch.port.transport>
+        <elasticsearch.version>6.8.4</elasticsearch.version>
     </properties>
 
     <dependencies>
@@ -106,39 +107,39 @@
                 </configuration>
             </plugin>
             <plugin>
-                <groupId>io.fabric8</groupId>
-                <artifactId>docker-maven-plugin</artifactId>
-                <version>0.31.0</version>
+                <groupId>com.github.alexcojocaru</groupId>
+                <artifactId>elasticsearch-maven-plugin</artifactId>
+                <!--
+                    THE PLUGIN VERSION; FOR THE LIST OF AVAILABLE VERSIONS, SEE
+                    https://github.com/alexcojocaru/elasticsearch-maven-plugin/releases
+                -->
+                <version>6.14</version>
                 <configuration>
-                    <images>
-                        <image>
-                            <alias>elasticsearch</alias>
-                            <name>docker.elastic.co/elasticsearch/elasticsearch:6.8.4</name>
-                            <run>
-                                <ports>
-                                    <port>elasticsearch.port.rest:9200</port>
-                                    <port>elasticsearch.port.api:9300</port>
-                                </ports>
-                                <wait>
-                                    <http>
-                                        <url>http://${docker.host.address}:${elasticsearch.port.rest}/_cat/indices</url>
-                                        <method>GET</method>
-                                    </http>
-                                    <time>60000</time>
-                                </wait>
-                            </run>
-                        </image>
-                    </images>
+                    <!-- THE ELASTICSEARCH VERSION; REPLACE WITH THE VERSION YOU NEED -->
+                    <version>${elasticsearch.version}</version>
+                    <clusterName>test</clusterName>
+                    <transportPort>${elasticsearch.port.transport}</transportPort>
+                    <httpPort>${elasticsearch.port.rest}</httpPort>
                 </configuration>
                 <executions>
                     <!--
+                        The elasticsearch maven plugin goals are by default bound to the
+                        pre-integration-test and post-integration-test phases
+                    -->
                     <execution>
-                        <id>default-testCompile</id>
-                        <phase>test-compile</phase>
+                        <id>start-elasticsearch</id>
+                        <phase>pre-integration-test</phase>
                         <goals>
-                            <goal>start</goal>
+                            <goal>runforked</goal>
                         </goals>
-                    </execution> -->
+                    </execution>
+                    <execution>
+                        <id>stop-elasticsearch</id>
+                        <phase>post-integration-test</phase>
+                        <goals>
+                            <goal>stop</goal>
+                        </goals>
+                    </execution>
                 </executions>
             </plugin>
         </plugins>
