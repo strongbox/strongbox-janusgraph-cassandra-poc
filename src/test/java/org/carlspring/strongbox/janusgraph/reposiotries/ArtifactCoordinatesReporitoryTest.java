@@ -1,7 +1,9 @@
 package org.carlspring.strongbox.janusgraph.reposiotries;
 
+import static org.apache.tinkerpop.gremlin.process.traversal.P.eq;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.util.Map;
 import java.util.UUID;
 
 import javax.inject.Inject;
@@ -36,19 +38,27 @@ public class ArtifactCoordinatesReporitoryTest
     @Inject
     private ArtifactCoordinatesRepository artifactCoordinatesRepository; 
     
+    
     @Test
-    public void cypherQueriesShouldWork()
+    public void queriesShouldWork()
     {
-        Vertex artifactCoordinatesVertex = createArtifactCoordinatesVertex();
+        createArtifactCoordinatesVertex();
         
         try (Session session = driver.session())
         {
-
             StatementResult result = session.run("MATCH (ac:ArtifactCoordinates { path:\"org/carlspring/test-artifact.jar\" }) RETURN ac");
             Node node = result.single().get(0).asNode();
 
-            assertEquals(artifactCoordinatesVertex.properties("path").next().value(), node.get("path").asString());
+            assertEquals("org/carlspring/test-artifact.jar", node.get("path").asString());
         }
+        
+        GraphTraversalSource g = janusGraph.traversal();
+        
+        Map<String, Object> vertex1 = g.V().hasLabel("ArtifactCoordinates").has("path", eq("org/carlspring/test-artifact.jar")).project("ac").next();
+        System.out.println(vertex1);
+        
+        Map<String, Object> vertex2 = g.V().has("path", eq("org/carlspring/test-artifact.jar")).hasLabel("ArtifactCoordinates").project("ac").next();
+        System.out.println(vertex2);
     }
 
     protected Vertex createArtifactCoordinatesVertex()
@@ -72,19 +82,22 @@ public class ArtifactCoordinatesReporitoryTest
 
     @Test
     public void crudShouldWork() {
-//        ArtifactCoordinates artifactCoordinates = new ArtifactCoordinates();
-//        artifactCoordinates.setPath("org/carlspring/test-artifact.jar");
-//        artifactCoordinates.setUuid(UUID.randomUUID().toString());
-//        artifactCoordinates.setVersion("1.0.0");
-//        
-//        ArtifactCoordinates artifactCoordinatesSaved;
-//        artifactCoordinatesSaved = artifactCoordinatesRepository.save(artifactCoordinates);
-//        assertEquals(artifactCoordinates.getUuid(), artifactCoordinatesSaved.getUuid());
+        ArtifactCoordinates artifactCoordinates = new ArtifactCoordinates();
+        artifactCoordinates.setPath("org/carlspring/test-artifact-1.0.0.jar");
+        artifactCoordinates.setUuid(UUID.randomUUID().toString());
+        artifactCoordinates.setVersion("1.0.0");
         
-        createArtifactCoordinatesVertex();
+        ArtifactCoordinates artifactCoordinatesSaved = artifactCoordinatesRepository.save(artifactCoordinates);
+        assertEquals(artifactCoordinates.getUuid(), artifactCoordinatesSaved.getUuid());
         
-        ArtifactCoordinates result = artifactCoordinatesRepository.findByPath("org/carlspring/test-artifact.jar");
-        assertEquals("org/carlspring/test-artifact.jar", result.getPath());
+        artifactCoordinates.setPath("org/carlspring/test-artifact-2.0.0.jar");
+        artifactCoordinates.setUuid(UUID.randomUUID().toString());
+        artifactCoordinates.setVersion("2.0.0");
+        artifactCoordinatesSaved = artifactCoordinatesRepository.save(artifactCoordinates);
+        assertEquals(artifactCoordinates.getUuid(), artifactCoordinatesSaved.getUuid());        
+        
+        ArtifactCoordinates result = artifactCoordinatesRepository.findByPath("org/carlspring/test-artifact-1.0.0.jar");
+        assertEquals("org/carlspring/test-artifact-1.0.0.jar", result.getPath());
     }
     
 }

@@ -1,9 +1,11 @@
 package org.opencypher.gremlin.neo4j.ogm.request;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import org.carlspring.strongbox.janusgraph.domain.DomainEntity;
 import org.neo4j.driver.v1.StatementResult;
 import org.neo4j.driver.v1.StatementRunner;
 import org.neo4j.driver.v1.exceptions.ClientException;
@@ -114,9 +116,44 @@ public class GremlinRequest implements Request
     {
         Map<String, Object> parameterMap = query.getParameters();
         String cypherStatement = query.getStatement();
+        if (cypherStatement.contains("MERGE") && cypherStatement.contains("n=row.props"))
+        {
+            cypherStatement = modifyMergeStatement(cypherStatement, parameterMap);
+        }
+        
         logger.debug("Request: {} with params {}", cypherStatement, parameterMap);
-
+        
         return statementRunner.run(cypherStatement, parameterMap);
+    }
+
+    protected String modifyMergeStatement(String cypherStatement,
+                                          Map<String, Object> parameterMap)
+    {
+        //cleanup multiple labels for DomainEntity inheritance 
+        cypherStatement = cypherStatement.replace(String.format(":`%s`", DomainEntity.class.getSimpleName()), "");
+        
+        Collection<Map<String, Object>> rows = (Collection<Map<String, Object>>) parameterMap.get("rows");
+        if (rows == null || rows.size() == 0)
+        {
+            return cypherStatement;
+        }
+
+        Map<String, Object> row = rows.iterator().next();
+        Map<String, Object> props = (Map<String, Object>) row.get("props");
+        if (props == null || props.size() == 0)
+        {
+            return cypherStatement;
+        }
+
+        //specify concrete properties to set
+        String prppsClause = props.keySet()
+                                  .stream()
+                                  .map(p -> String.format("n.%s = row.props.%s", p, p))
+                                  .reduce((p1,
+                                           p2) -> p1 + "," + p2)
+                                  .get();
+
+        return cypherStatement.replace("n=row.props", prppsClause);
     }
 
     private static class MultiStatementBasedResponse implements Response<RowModel>
