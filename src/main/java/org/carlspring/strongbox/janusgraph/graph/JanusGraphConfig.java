@@ -32,12 +32,6 @@ public class JanusGraphConfig
     }
 
     @Bean
-    public GraphTraversalSource traversalSource(JanusGraph jg)
-    {
-        return jg.traversal();
-    }
-
-    @Bean
     public Driver neoj4Driver(GraphTraversalSource g)
     {
         return GremlinDatabase.driver(g);
