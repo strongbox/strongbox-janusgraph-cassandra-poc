@@ -58,6 +58,11 @@
             <artifactId>gremlin-driver</artifactId>
             <version>${tinkerpop.verion}</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.tinkerpop</groupId>
+            <artifactId>gremlin-server</artifactId>
+            <version>${tinkerpop.verion}</version>
+        </dependency>
 
         <dependency>
             <groupId>org.opencypher.gremlin</groupId>

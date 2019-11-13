@@ -27,8 +27,15 @@ public class JanusGraphConfig
                                 .set("storage.backend", "cql")
                                 .set("storage.hostname", "127.0.0.1")
                                 .set("storage.port", cassandraEmbeddedProperties.getPort())
-                                .set("gremlin.graph", "org.janusgraph.core.JanusGraphFactoryGraphTraversalSource")
+                                .set("storage.cql.keyspace", "jgex")
+                                .set("tx.log-tx", true)
                                 .open();
+    }
+
+    @Bean
+    public GraphTraversalSource traversalSource(JanusGraph jg)
+    {
+        return jg.traversal();
     }
 
     @Bean

@@ -3,3 +3,8 @@ server:
 strongbox:
   cassandra:
     port: 49142
+  graph:
+    gremlin:
+      server:
+        enabled: true # enabled gremlin server allows graph visualization using HTTP
+        configurationResource: classpath:conf/gremlin-server/gremlin-server.yaml
