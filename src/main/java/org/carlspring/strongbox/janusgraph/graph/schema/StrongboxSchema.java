@@ -140,7 +140,7 @@ public class StrongboxSchema
         EdgeLabelMaker edgeLabelMaker = jgm.makeEdgeLabel(name);
         if (multiplicity != null)
         {
-            edgeLabelMaker = edgeLabelMaker.multiplicity(Multiplicity.MANY2ONE);
+            edgeLabelMaker = edgeLabelMaker.multiplicity(multiplicity);
         }
 
         edgeLabelMaker.make();
