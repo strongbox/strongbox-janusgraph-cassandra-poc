@@ -19,6 +19,7 @@ import org.neo4j.driver.v1.Driver;
 import org.neo4j.driver.v1.Session;
 import org.neo4j.driver.v1.StatementResult;
 import org.neo4j.driver.v1.types.Node;
+import org.opencypher.gremlin.neo4j.driver.GremlinDatabase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -33,16 +34,14 @@ public class ArtifactCoordinatesReporitoryTest
     private JanusGraph janusGraph;
 
     @Inject
-    private Driver driver;
-    
-    @Inject
     private ArtifactCoordinatesRepository artifactCoordinatesRepository; 
-    
     
     @Test
     public void queriesShouldWork()
     {
         createArtifactCoordinatesVertex();
+        
+        Driver driver = GremlinDatabase.driver(janusGraph.traversal());
         
         try (Session session = driver.session())
         {

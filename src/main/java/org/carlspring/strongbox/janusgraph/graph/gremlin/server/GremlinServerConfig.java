@@ -22,9 +22,8 @@ public class GremlinServerConfig
 
     @Bean(destroyMethod = "stop")
     GremlinServer gremlinServer(JanusGraph graph,
-                                GraphTraversalSource g,
                                 @Value("${strongbox.graph.gremlin.server.configurationResource}")
-                                        Resource gremlinServerConf)
+                                Resource gremlinServerConf)
             throws Exception
     {
         GremlinServer server;
@@ -35,7 +34,7 @@ public class GremlinServerConfig
         }
 
         server.getServerGremlinExecutor().getGraphManager().putGraph("graph", graph);
-        server.getServerGremlinExecutor().getGremlinExecutor().getScriptEngineManager().put("g", g);
+        server.getServerGremlinExecutor().getGremlinExecutor().getScriptEngineManager().put("g", graph.traversal());
 
         server.start().join();
         return server;
