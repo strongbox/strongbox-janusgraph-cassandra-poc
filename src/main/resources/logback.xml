@@ -7,6 +7,7 @@
     </appender>
     <logger name="com.datastax.driver.core" level="WARN" />
     <logger name="org.apache.tinkerpop.gremlin.groovy.engine" level="DEBUG" />
+    <logger name="org.opencypher.gremlin.neo4j" level="DEBUG" />
     <root level="INFO">
         <appender-ref ref="CONSOLE" />
     </root>

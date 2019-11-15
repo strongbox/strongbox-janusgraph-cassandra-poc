@@ -61,10 +61,11 @@ public class GremlinDriver extends AbstractConfigurableDriver
     @Override
     public Request request(Transaction transaction)
     {
-        Graph graph = ((GremlinTransaction) transaction).getNativeTransaction();
+        GremlinTransaction gremlinTransaction = (GremlinTransaction) transaction;
+        Graph graph = gremlinTransaction.getNativeTransaction();
         CypherGremlinClient cypherGremlinClient = CypherGremlinClient.inMemory(graph.traversal());
 
-        return new GremlinRequest(new GremlinStatementRunner(cypherGremlinClient),
+        return new GremlinRequest(new GremlinStatementRunner(gremlinTransaction, cypherGremlinClient),
                 new GremlinEntityAdapter(typeSystem));
     }
 

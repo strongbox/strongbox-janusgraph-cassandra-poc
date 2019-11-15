@@ -1,7 +1,19 @@
 package org.opencypher.gremlin.neo4j.driver;
 
-import java.util.Map;
+import static org.opencypher.gremlin.translation.ReturnProperties.ID;
+import static org.opencypher.gremlin.translation.ReturnProperties.INV;
+import static org.opencypher.gremlin.translation.ReturnProperties.LABEL;
+import static org.opencypher.gremlin.translation.ReturnProperties.OUTV;
+import static org.opencypher.gremlin.translation.ReturnProperties.RELATIONSHIP_TYPE;
+import static org.opencypher.gremlin.translation.ReturnProperties.TYPE;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+
+import org.janusgraph.core.JanusGraphTransaction;
+import org.janusgraph.core.JanusGraphVertex;
+import org.janusgraph.graphdb.relations.RelationIdentifier;
 import org.neo4j.driver.v1.Record;
 import org.neo4j.driver.v1.Session;
 import org.neo4j.driver.v1.Statement;
@@ -10,15 +22,19 @@ import org.neo4j.driver.v1.StatementRunner;
 import org.neo4j.driver.v1.Value;
 import org.neo4j.driver.v1.types.TypeSystem;
 import org.opencypher.gremlin.client.CypherGremlinClient;
+import org.opencypher.gremlin.neo4j.ogm.transaction.GremlinTransaction;
 
 public class GremlinStatementRunner implements StatementRunner
 {
 
-    private Session session;
+    private final Session session;
+    private final GremlinTransaction gremlinTransaction;
 
-    public GremlinStatementRunner(CypherGremlinClient client)
+    public GremlinStatementRunner(GremlinTransaction gremlinTransaction,
+                                  CypherGremlinClient client)
     {
-        this.session = new GremlinServerSession(null, client, new GremlinCypherValueConverter(false));
+        this.gremlinTransaction = gremlinTransaction;
+        this.session = new GremlinServerSession(null, client, new JanusGraphValueConverter(false));
     }
 
     public StatementResult run(String statementTemplate,
@@ -52,6 +68,57 @@ public class GremlinStatementRunner implements StatementRunner
     public TypeSystem typeSystem()
     {
         return session.typeSystem();
+    }
+
+    class JanusGraphValueConverter extends GremlinCypherValueConverter
+    {
+
+        public JanusGraphValueConverter(boolean ignoreIds)
+        {
+            super(ignoreIds);
+        }
+
+        @Override
+        Record toRecord(Map<String, Object> map)
+        {
+            map.entrySet().forEach(this::normalizeValue);
+
+            return super.toRecord(map);
+        }
+
+        private void normalizeValue(Entry<String, Object> e)
+        {
+            Object value = e.getValue();
+            if (value instanceof Map)
+            {
+                Map<String, Object> nodeMap = (Map<String, Object>) value;
+                nodeMap.entrySet().forEach(this::normalizeValue);
+            }
+            else if (e.getValue() instanceof RelationIdentifier)
+            {
+                JanusGraphTransaction tx = (JanusGraphTransaction) gremlinTransaction.getNativeTransaction();
+                RelationIdentifier relationIdentifier = (RelationIdentifier) e.getValue();
+                if (ID.equals(e.getKey()))
+                {
+                    e.setValue(relationIdentifier.getRelationId());
+
+                    return;
+                }
+
+                Map<String, Object> expectedValue = new HashMap<>();
+                expectedValue.put(TYPE, RELATIONSHIP_TYPE);
+                expectedValue.put(ID, relationIdentifier.getRelationId());
+                expectedValue.put(OUTV, relationIdentifier.getOutVertexId());
+                expectedValue.put(INV, relationIdentifier.getInVertexId());
+
+                JanusGraphVertex typeVertex = tx.getVertex(relationIdentifier.getTypeId());
+                expectedValue.put(LABEL, typeVertex.label());
+
+                e.setValue(expectedValue);
+            }
+
+        }
+
     }
 
 }
