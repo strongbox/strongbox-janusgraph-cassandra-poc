@@ -140,6 +140,24 @@
                             <goal>stop</goal>
                         </goals>
                     </execution>
+                    <!--
+                        Bind immediately before and after test phase since we are running
+                        integration tests here
+                    -->
+                    <execution>
+                        <id>test-start-elasticsearch</id>
+                        <phase>process-test-classes</phase>
+                        <goals>
+                            <goal>runforked</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>test-stop-elasticsearch</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>stop</goal>
+                        </goals>
+                    </execution>
                 </executions>
             </plugin>
         </plugins>
