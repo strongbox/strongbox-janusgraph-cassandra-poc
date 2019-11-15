@@ -26,6 +26,10 @@ public class JanusGraphConfig
                                 .set("storage.port", cassandraEmbeddedProperties.getPort())
                                 .set("storage.cql.keyspace", "jgex")
                                 .set("tx.log-tx", true)
+                                .set("gremlin.graph", "org.janusgraph.core.JanusGraphFactoryGraphTraversalSource")
+                                .set("index.search.backend", "elasticsearch")
+                                .set("index.search.hostname", "127.0.0.1")
+                                .set("index.search.elasticsearch.client-only", "true")
                                 .open();
     }
 
