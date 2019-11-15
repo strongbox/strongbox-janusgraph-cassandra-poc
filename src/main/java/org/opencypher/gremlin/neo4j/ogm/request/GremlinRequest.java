@@ -26,6 +26,7 @@ import org.neo4j.ogm.response.Response;
 import org.opencypher.gremlin.neo4j.ogm.response.GremlinEntityAdapter;
 import org.opencypher.gremlin.neo4j.ogm.response.GremlinModelResponse;
 import org.opencypher.gremlin.neo4j.ogm.response.GremlinRowModelResponse;
+import org.opencypher.gremlin.translation.TranslationFacade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -122,6 +123,7 @@ public class GremlinRequest implements Request
         }
         
         logger.debug("Request: {} with params {}", cypherStatement, parameterMap);
+        //logger.debug("Gramlin: {}", new TranslationFacade().toGremlinGroovy(cypherStatement));
         
         return statementRunner.run(cypherStatement, parameterMap);
     }

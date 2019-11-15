@@ -101,7 +101,7 @@ public class StrongboxSchema
 
         // Edges
         makeEdgeLabelIfDoesNotExist(jgm, ArtifactEntry.class.getSimpleName() + "#" +
-                                         ArtifactCoordinates.class.getSimpleName(), Multiplicity.MANY2ONE);
+                                         ArtifactCoordinates.class.getSimpleName(), Multiplicity.ONE2MANY);
     }
 
     private Optional<String> buildIndexIfNecessary(final JanusGraphManagement jgm,
