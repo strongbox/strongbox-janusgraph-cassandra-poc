@@ -1,6 +1,5 @@
 package org.carlspring.strongbox.janusgraph.graph.schema;
 
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -89,7 +88,7 @@ public class StrongboxSchema
         makePropertyKeyIfDoesNotExist(jgm, "storageId", String.class);
         makePropertyKeyIfDoesNotExist(jgm, "repositoryId", String.class);
         makePropertyKeyIfDoesNotExist(jgm, "sizeInBytes", Long.class);
-        makePropertyKeyIfDoesNotExist(jgm, "created", Date.class);
+        makePropertyKeyIfDoesNotExist(jgm, "created", String.class);
         makePropertyKeyIfDoesNotExist(jgm, "tags", String.class, Cardinality.SET);
 
         makePropertyKeyIfDoesNotExist(jgm, "path", String.class);
