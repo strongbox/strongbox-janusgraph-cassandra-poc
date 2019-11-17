@@ -5,7 +5,7 @@ import java.util.Set;
 
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
-import org.neo4j.ogm.annotation.typeconversion.DateLong;
+import org.neo4j.ogm.annotation.typeconversion.DateString;
 
 @NodeEntity
 public class ArtifactEntry extends DomainEntity
@@ -14,9 +14,8 @@ public class ArtifactEntry extends DomainEntity
     private String storageId;
     private String repositoryId;
     private Long sizeInBytes;
-    //TODO: fix the neoj4-ogm support for Date
-    //@DateLong
-    //private Date created;
+    @DateString("yyyy-MM-dd HH:mm:ss.SSSXXX")
+    private Date created;
     private Set<String> tags;
     @Relationship(type = "ArtifactEntry#ArtifactCoordinates", direction = Relationship.OUTGOING)
     private ArtifactCoordinates artifactCoordinates;
@@ -49,6 +48,16 @@ public class ArtifactEntry extends DomainEntity
     public void setSizeInBytes(Long sizeInBytes)
     {
         this.sizeInBytes = sizeInBytes;
+    }
+
+    public Date getCreated()
+    {
+        return created;
+    }
+
+    public void setCreated(final Date created)
+    {
+        this.created = created;
     }
 
     public Set<String> getTags()

@@ -6,6 +6,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.UUID;
 
@@ -45,11 +46,13 @@ public class ArtifactEntryReporitoryTest
         artifactCoordinates.setUuid(UUID.randomUUID().toString());
         artifactCoordinates.setVersion("3.0.0");
 
+        Date createdOn = new Date();
         ArtifactEntry artifactEntry = new ArtifactEntry();
         artifactEntry.setUuid(UUID.randomUUID().toString());
         artifactEntry.setStorageId("storage0");
         artifactEntry.setRepositoryId("releases");
         artifactEntry.setSizeInBytes(123L);
+        artifactEntry.setCreated(createdOn);
         artifactEntry.setTags(new HashSet<>(Arrays.asList("release", "stabile")));
         artifactEntry.setArtifactCoordinates(artifactCoordinates);
 
@@ -61,6 +64,7 @@ public class ArtifactEntryReporitoryTest
         assertEquals(artifactEntrySaved.getUuid(), artifactEntry.getUuid());
         assertNotNull(artifactEntrySaved.getArtifactCoordinates());
         assertNotNull(artifactEntrySaved.getTags());
+        assertEquals(createdOn, artifactEntrySaved.getCreated());
         // TODO: fix the embedded set
         //assertTrue(artifactEntrySaved.getTags().contains("release"));
     }
