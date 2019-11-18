@@ -19,9 +19,6 @@
         <cassandra.version>3.11.4</cassandra.version>
         <tinkerpop.verion>3.4.4</tinkerpop.verion>
         <java.version>1.8</java.version>
-        <elasticsearch.port.rest>9200</elasticsearch.port.rest>
-        <elasticsearch.port.transport>9300</elasticsearch.port.transport>
-        <elasticsearch.version>6.8.4</elasticsearch.version>
     </properties>
 
     <dependencies>
@@ -43,11 +40,6 @@
         <dependency>
             <groupId>org.janusgraph</groupId>
             <artifactId>janusgraph-cql</artifactId>
-            <version>${janusgraph.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.janusgraph</groupId>
-            <artifactId>janusgraph-es</artifactId>
             <version>${janusgraph.version}</version>
         </dependency>
         <dependency>
@@ -106,55 +98,7 @@
                     <mainClass>org.carlspring.strongbox.janusgraph.app.Application</mainClass>
                 </configuration>
             </plugin>
-            <plugin>
-                <groupId>com.github.alexcojocaru</groupId>
-                <artifactId>elasticsearch-maven-plugin</artifactId>
-                <version>6.14</version>
-                <configuration>
-                    <version>${elasticsearch.version}</version>
-                    <clusterName>test</clusterName>
-                    <transportPort>${elasticsearch.port.transport}</transportPort>
-                    <httpPort>${elasticsearch.port.rest}</httpPort>
-                </configuration>
-                <executions>
-                    <!--
-                        The elasticsearch maven plugin goals are by default bound to the
-                        pre-integration-test and post-integration-test phases
-                    -->
-                    <execution>
-                        <id>start-elasticsearch</id>
-                        <phase>pre-integration-test</phase>
-                        <goals>
-                            <goal>runforked</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>stop-elasticsearch</id>
-                        <phase>post-integration-test</phase>
-                        <goals>
-                            <goal>stop</goal>
-                        </goals>
-                    </execution>
-                    <!--
-                        Bind immediately before and after test phase since we are running
-                        integration tests here
-                    -->
-                    <execution>
-                        <id>test-start-elasticsearch</id>
-                        <phase>process-test-classes</phase>
-                        <goals>
-                            <goal>runforked</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>test-stop-elasticsearch</id>
-                        <phase>prepare-package</phase>
-                        <goals>
-                            <goal>stop</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
+
         </plugins>
     </build>
 
