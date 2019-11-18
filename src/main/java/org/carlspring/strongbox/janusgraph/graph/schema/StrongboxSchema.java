@@ -3,14 +3,18 @@ package org.carlspring.strongbox.janusgraph.graph.schema;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
 
 import javax.inject.Inject;
 
+import org.apache.tinkerpop.gremlin.process.traversal.Order;
+import org.apache.tinkerpop.gremlin.structure.Direction;
 import org.apache.tinkerpop.gremlin.structure.Element;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.carlspring.strongbox.janusgraph.domain.ArtifactCoordinates;
 import org.carlspring.strongbox.janusgraph.domain.ArtifactEntry;
 import org.janusgraph.core.Cardinality;
+import org.janusgraph.core.EdgeLabel;
 import org.janusgraph.core.JanusGraph;
 import org.janusgraph.core.Multiplicity;
 import org.janusgraph.core.PropertyKey;
@@ -20,6 +24,7 @@ import org.janusgraph.core.schema.JanusGraphIndex;
 import org.janusgraph.core.schema.JanusGraphManagement;
 import org.janusgraph.core.schema.JanusGraphSchemaType;
 import org.janusgraph.core.schema.PropertyKeyMaker;
+import org.janusgraph.core.schema.SchemaAction;
 import org.janusgraph.graphdb.database.management.ManagementSystem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,10 +66,36 @@ public class StrongboxSchema
             jgm.rollback();
             throw new RuntimeException("Failed to create indexes.", e);
         }
-        
+
         for (String janusGraphIndex : indexes)
         {
+            logger.info(String.format("Wait index [%s] to be registered.", janusGraphIndex));
             ManagementSystem.awaitGraphIndexStatus(jg, janusGraphIndex).call();
+        }
+        
+        jgm = jg.openManagement();
+        try
+        {
+            enableIndexes(jg, jgm, indexes);
+            jgm.commit();
+        }
+        catch (Exception e)
+        {
+            logger.error("Failed to enable indexes.", e);
+            jgm.rollback();
+            throw new RuntimeException("Failed to enable indexes.", e);
+        }
+    }
+
+    protected void enableIndexes(JanusGraph jg, JanusGraphManagement jgm,
+                                 Set<String> indexes)
+        throws InterruptedException,
+        ExecutionException
+    {
+        for (String janusGraphIndex : indexes)
+        {
+            logger.info(String.format("Enabling index [%s].", janusGraphIndex));
+            jgm.updateIndex(jgm.getGraphIndex(janusGraphIndex), SchemaAction.ENABLE_INDEX).get();
         }
     }
 
@@ -72,11 +103,25 @@ public class StrongboxSchema
     {
         Set<String> result = new HashSet<>();
 
-        PropertyKey propertyPath = jgm.getPropertyKey("path");
-        VertexLabel vertexLabel = jgm.getVertexLabel(ArtifactCoordinates.class.getSimpleName());
+        PropertyKey propertyKey = jgm.getPropertyKey("uuid");
+        VertexLabel vertexLabel = jgm.getVertexLabel(ArtifactEntry.class.getSimpleName());
+        buildIndexIfNecessary(jgm, ArtifactEntry.class.getSimpleName() + ".uuid", Vertex.class, propertyKey,
+                              vertexLabel, true).ifPresent(result::add);
 
-        buildIndexIfNecessary(jgm, ArtifactCoordinates.class.getSimpleName() + ".path", Vertex.class, propertyPath, vertexLabel)
-                .ifPresent(result::add);
+        propertyKey = jgm.getPropertyKey("uuid");
+        vertexLabel = jgm.getVertexLabel(ArtifactCoordinates.class.getSimpleName());
+        buildIndexIfNecessary(jgm, ArtifactCoordinates.class.getSimpleName() + ".uuid", Vertex.class, propertyKey,
+                              vertexLabel, true).ifPresent(result::add);
+
+        propertyKey = jgm.getPropertyKey("path");
+        vertexLabel = jgm.getVertexLabel(ArtifactCoordinates.class.getSimpleName());
+        buildIndexIfNecessary(jgm, ArtifactCoordinates.class.getSimpleName() + ".path", Vertex.class, propertyKey,
+                              vertexLabel).ifPresent(result::add);
+        
+//        EdgeLabel artifactEntryToArtifactCoordinates = jg.getEdgeLabel(ArtifactEntry.class.getSimpleName() + "#"
+//                + ArtifactCoordinates.class.getSimpleName());
+//        jgm.buildEdgeIndex(artifactEntryToArtifactCoordinates, "battlesByTime", Direction.OUT);
+
 
         return result;
     }
@@ -100,7 +145,7 @@ public class StrongboxSchema
 
         // Edges
         makeEdgeLabelIfDoesNotExist(jgm, ArtifactEntry.class.getSimpleName() + "#" +
-                                         ArtifactCoordinates.class.getSimpleName(), Multiplicity.ONE2MANY);
+                                         ArtifactCoordinates.class.getSimpleName(), Multiplicity.MANY2ONE);
     }
 
     private Optional<String> buildIndexIfNecessary(final JanusGraphManagement jgm,
@@ -108,6 +153,17 @@ public class StrongboxSchema
                                                    final Class<? extends Element> elementType,
                                                    final PropertyKey propertyPath,
                                                    final JanusGraphSchemaType schemaType)
+    {
+        return buildIndexIfNecessary(jgm, name, elementType, propertyPath, schemaType, false);
+
+    }
+    
+    private Optional<String> buildIndexIfNecessary(final JanusGraphManagement jgm,
+                                                   final String name,
+                                                   final Class<? extends Element> elementType,
+                                                   final PropertyKey propertyPath,
+                                                   final JanusGraphSchemaType schemaType,
+                                                   final boolean unique)
     {
         if (jgm.containsGraphIndex(name))
         {
@@ -122,6 +178,10 @@ public class StrongboxSchema
         if (schemaType != null)
         {
             indexBuilder = indexBuilder.indexOnly(schemaType);
+        }
+        if (unique)
+        {
+            indexBuilder = indexBuilder.unique();
         }
 
         JanusGraphIndex janusGraphIndex = indexBuilder.buildCompositeIndex();
