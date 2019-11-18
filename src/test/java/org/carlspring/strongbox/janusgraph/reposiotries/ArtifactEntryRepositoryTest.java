@@ -21,7 +21,6 @@ import org.carlspring.strongbox.janusgraph.domain.ArtifactCoordinates;
 import org.carlspring.strongbox.janusgraph.domain.ArtifactEntry;
 import org.janusgraph.core.JanusGraph;
 import org.junit.jupiter.api.Test;
-import org.opencypher.gremlin.translation.TranslationFacade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -86,7 +85,8 @@ public class ArtifactEntryRepositoryTest
         artifactEntry.setSizeInBytes(123L);
         artifactEntry.setTags(new HashSet<>(Arrays.asList("release", "stabile")));
         artifactEntry.setArtifactCoordinates(artifactCoordinates);
-
+        artifactEntry.setCreated(new Date());
+        
         ArtifactEntry artifactEntrySaved = artifactEntryRepository.save(artifactEntry);
         assertEquals(artifactEntrySaved.getUuid(), artifactEntry.getUuid());
 
@@ -103,7 +103,7 @@ public class ArtifactEntryRepositoryTest
         assertEquals(ArtifactEntry.class.getSimpleName() + "#" + ArtifactCoordinates.class.getSimpleName(),
                      artifactEntry2ArtifactCoordinatesEdge.label());
 
-        // ArtufactCoordinates should exists
+        // ArtifactCoordinates should exists
         GraphTraversal<Vertex, Vertex> vertexQuery = g.V()
                                                       .hasLabel(ArtifactEntry.class.getSimpleName())
                                                       .has("uuid", artifactEntryUuid)
@@ -115,24 +115,17 @@ public class ArtifactEntryRepositoryTest
         assertEquals(artifactCoordinatesUuid, artifactCoordinatesVertex.property("uuid").value());
         assertEquals(ArtifactCoordinates.class.getSimpleName(), artifactCoordinatesVertex.label());
 
-        // ArtufactCoordinates should still exists
+        // ArtifactCoordinates should still exists
         vertexQuery = g.V()
-                       .hasLabel(ArtifactEntry.class.getSimpleName())
-                       .outE()
-                       .inV()
                        .hasLabel(ArtifactCoordinates.class.getSimpleName())
-                       .has("path", eq("org/carlspring/test-artifact-4.0.0.jar"));
+                       .has("path", eq("org/carlspring/test-artifact-4.0.0.jar"))
+                       .inE()
+                       .outV()
+                       .hasLabel(ArtifactEntry.class.getSimpleName());
         assertTrue(vertexQuery.hasNext());
-        Vertex artifactCoordinatesAnotherVertex = vertexQuery.next();
+        Vertex artifactEntryAnotherVertex = vertexQuery.next();
         assertEquals(artifactCoordinatesUuid, artifactCoordinatesVertex.property("uuid").value());
-        assertEquals(ArtifactCoordinates.class.getSimpleName(), artifactCoordinatesAnotherVertex.label());
-    }
-
-    public static void main(String args[])
-    {
-        String cypher = "MATCH (ae:`ArtifactEntry`)-[`ArtifactEntry#ArtifactCoordinates`]->(ac:`ArtifactCoordinates` {path:'a/b/c'}) RETURN ae";
-        TranslationFacade cfog = new TranslationFacade();
-        System.out.println(cfog.toGremlinGroovy(cypher));
+        assertEquals(ArtifactEntry.class.getSimpleName(), artifactEntryAnotherVertex.label());
     }
 
 }

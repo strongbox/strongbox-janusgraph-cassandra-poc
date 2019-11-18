@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 public interface ArtifactEntryRepository extends CrudRepository<ArtifactEntry, String>
 {
 
-    @Query("MATCH (ae:`ArtifactEntry`)-[aeac:`ArtifactEntry#ArtifactCoordinates`]->(ac:`ArtifactCoordinates` {path:$path}) RETURN ae, aeac, ac")
+    @Query("MATCH (ac:`ArtifactCoordinates`)<-[aeac:`ArtifactEntry#ArtifactCoordinates`]-(ae:`ArtifactEntry`) WHERE ac.path=$path RETURN ae, aeac, ac")
     ArtifactEntry findByPath(String path);
-
+    
 }

@@ -2,9 +2,13 @@ package org.opencypher.gremlin.neo4j.ogm.request;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.carlspring.strongbox.janusgraph.domain.DomainEntity;
 import org.neo4j.driver.v1.StatementResult;
 import org.neo4j.driver.v1.StatementRunner;
@@ -26,9 +30,13 @@ import org.neo4j.ogm.response.Response;
 import org.opencypher.gremlin.neo4j.ogm.response.GremlinEntityAdapter;
 import org.opencypher.gremlin.neo4j.ogm.response.GremlinModelResponse;
 import org.opencypher.gremlin.neo4j.ogm.response.GremlinRowModelResponse;
-import org.opencypher.gremlin.translation.TranslationFacade;
+import org.opencypher.gremlin.translation.CypherAst;
+import org.opencypher.gremlin.translation.groovy.GroovyPredicate;
+import org.opencypher.gremlin.translation.translator.Translator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import scala.collection.parallel.ParIterableLike.FlatMap;
 
 public class GremlinRequest implements Request
 {
@@ -117,22 +125,90 @@ public class GremlinRequest implements Request
     {
         Map<String, Object> parameterMap = query.getParameters();
         String cypherStatement = query.getStatement();
-        if (cypherStatement.contains("MERGE") && cypherStatement.contains("n=row.props"))
+        logger.debug("Cypher: {} with params {}", cypherStatement, parameterMap);
+        if (cypherStatement.contains("MERGE"))
         {
-            cypherStatement = modifyMergeStatement(cypherStatement, parameterMap);
+            cypherStatement = normalizeMergeStatement(cypherStatement, parameterMap);
         }
-        
-        logger.debug("Request: {} with params {}", cypherStatement, parameterMap);
-        //logger.debug("Gramlin: {}", new TranslationFacade().toGremlinGroovy(cypherStatement));
-        
+
+        cypherStatement = inlileParameters(cypherStatement, parameterMap);
+
+        logger.debug("Cypher(normalized): {}", cypherStatement);
+        CypherAst ast = CypherAst.parse(cypherStatement, parameterMap);
+        Translator<String, GroovyPredicate> translator = Translator.builder()
+                                                                   .gremlinGroovy()
+                                                                   .enableCypherExtensions()
+                                                                   .build();
+        logger.debug("Gremlin: {}", ast.buildTranslation(translator));
+
         return statementRunner.run(cypherStatement, parameterMap);
     }
 
-    protected String modifyMergeStatement(String cypherStatement,
-                                          Map<String, Object> parameterMap)
+    protected String inlileParameters(String cypherStatement,
+                                      Map<String, Object> parameterMap)
+    {
+        String placeholderFormat;
+        Map<String, Object> params;
+        Collection<Map<String, Object>> rows = (Collection<Map<String, Object>>) parameterMap.get("rows");        
+        if (rows == null || rows.size() == 0)
+        {
+            //regular case
+            placeholderFormat = "$%s";
+            params = parameterMap;
+        }
+        else
+        {
+            //the case with `UNWIND {rows} as row ...`
+            placeholderFormat = "row.%s";
+            params = rows.iterator().next();
+        }
+
+        List<Pair<String, Object>> props = params.entrySet()
+                                                 .stream()
+                                                 .flatMap(GremlinRequest::flatten)
+                                                 .collect(Collectors.toList());
+
+        for (Pair<String, Object> p : props)
+        {
+            cypherStatement = cypherStatement.replace(String.format(placeholderFormat, p.getKey()),
+                                                      inlinedValue(p.getValue()));
+        }
+
+        return cypherStatement;
+    }
+
+    protected String inlinedValue(Object value)
+    {
+        if (value instanceof Number) {
+            return value.toString();
+        }
+            
+        return "'" + value.toString() + "'";
+    }
+    
+    private static Stream<Pair<String, Object>> flatten(Map.Entry<String, Object> root)
+    {
+        if (root.getValue() instanceof Map<?, ?>)
+        {
+            return ((Map<String, Object>) root.getValue()).entrySet()
+                                                          .stream()
+                                                          .map(e -> Pair.of(root.getKey() + "." + e.getKey(),
+                                                                            e.getValue()))
+                                                          .flatMap(GremlinRequest::flatten);
+        }
+        return Stream.of(Pair.of(root.getKey(), root.getValue()));
+    }
+    
+    protected String normalizeMergeStatement(String cypherStatement,
+                                             Map<String, Object> parameterMap)
     {
         //cleanup multiple labels for DomainEntity inheritance 
         cypherStatement = cypherStatement.replace(String.format(":`%s`", DomainEntity.class.getSimpleName()), "");
+        
+        if (!cypherStatement.contains("n=row.props"))
+        {
+            return cypherStatement;
+        }
         
         Collection<Map<String, Object>> rows = (Collection<Map<String, Object>>) parameterMap.get("rows");
         if (rows == null || rows.size() == 0)
@@ -146,16 +222,16 @@ public class GremlinRequest implements Request
         {
             return cypherStatement;
         }
-
+       
         //specify concrete properties to set
-        String prppsClause = props.keySet()
+        String propsClause = props.keySet()
                                   .stream()
                                   .map(p -> String.format("n.%s = row.props.%s", p, p))
                                   .reduce((p1,
                                            p2) -> p1 + "," + p2)
                                   .get();
 
-        return cypherStatement.replace("n=row.props", prppsClause);
+        return cypherStatement.replace("n=row.props", propsClause);
     }
 
     private static class MultiStatementBasedResponse implements Response<RowModel>
