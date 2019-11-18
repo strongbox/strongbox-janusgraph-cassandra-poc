@@ -26,7 +26,7 @@ public class CassandraEmbeddedConfig
         System.setProperty("cassandra.native.epoll.enabled", "false");
         System.setProperty("cassandra.unsafesystem", "true");
 
-        CassandraDaemon cassandraDaemon = new CassandraDaemon();
+        CassandraDaemon cassandraDaemon = new CassandraDaemon(true);
         cassandraDaemon.activate();
 
         return cassandraDaemon;

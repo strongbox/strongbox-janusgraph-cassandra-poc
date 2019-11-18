@@ -27,10 +27,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest(classes = Application.class)
-public class ArtifactEntryReporitoryTest
+public class ArtifactEntryRepositoryTest
 {
 
-    private static final Logger logger = LoggerFactory.getLogger(ArtifactEntryReporitoryTest.class);
+    private static final Logger logger = LoggerFactory.getLogger(ArtifactEntryRepositoryTest.class);
 
     @Inject
     private ArtifactEntryRepository artifactEntryRepository;
