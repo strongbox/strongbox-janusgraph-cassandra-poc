@@ -30,11 +30,12 @@ public class CypherGremlinStatementRunner implements StatementRunner
     private final Session session;
     private final GremlinTransaction gremlinTransaction;
 
-    public CypherGremlinStatementRunner(GremlinTransaction gremlinTransaction,
-                                  CypherGremlinClient client)
+    public CypherGremlinStatementRunner(GremlinTransaction gremlinTransaction)
     {
         this.gremlinTransaction = gremlinTransaction;
-        this.session = new GremlinServerSession(null, client, new JanusGraphValueConverter(false));
+        this.session = new GremlinServerSession(null,
+                CypherGremlinClient.inMemory(gremlinTransaction.getNativeTransaction().traversal()),
+                new JanusGraphValueConverter(false));
     }
 
     public StatementResult run(String statementTemplate,

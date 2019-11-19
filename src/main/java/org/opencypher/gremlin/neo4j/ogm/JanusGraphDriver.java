@@ -3,7 +3,6 @@ package org.opencypher.gremlin.neo4j.ogm;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
-import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.janusgraph.core.JanusGraph;
 import org.janusgraph.core.JanusGraphTransaction;
 import org.janusgraph.core.TransactionBuilder;
@@ -13,7 +12,6 @@ import org.neo4j.ogm.request.Request;
 import org.neo4j.ogm.transaction.Transaction;
 import org.neo4j.ogm.transaction.Transaction.Type;
 import org.neo4j.ogm.transaction.TransactionManager;
-import org.opencypher.gremlin.client.CypherGremlinClient;
 import org.opencypher.gremlin.neo4j.driver.CypherGremlinStatementRunner;
 import org.opencypher.gremlin.neo4j.ogm.request.GremlinRequest;
 import org.opencypher.gremlin.neo4j.ogm.transaction.GremlinTransaction;
@@ -60,11 +58,7 @@ public class JanusGraphDriver extends AbstractConfigurableDriver
     @Override
     public Request request(Transaction transaction)
     {
-        GremlinTransaction gremlinTransaction = (GremlinTransaction) transaction;
-        Graph graph = gremlinTransaction.getNativeTransaction();
-        CypherGremlinClient cypherGremlinClient = CypherGremlinClient.inMemory(graph.traversal());
-
-        return new GremlinRequest(new CypherGremlinStatementRunner(gremlinTransaction, cypherGremlinClient));
+        return new GremlinRequest(new CypherGremlinStatementRunner((GremlinTransaction) transaction));
     }
 
     @Override
