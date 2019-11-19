@@ -24,13 +24,13 @@ import org.neo4j.driver.v1.types.TypeSystem;
 import org.opencypher.gremlin.client.CypherGremlinClient;
 import org.opencypher.gremlin.neo4j.ogm.transaction.GremlinTransaction;
 
-public class GremlinStatementRunner implements StatementRunner
+public class CypherGremlinStatementRunner implements StatementRunner
 {
 
     private final Session session;
     private final GremlinTransaction gremlinTransaction;
 
-    public GremlinStatementRunner(GremlinTransaction gremlinTransaction,
+    public CypherGremlinStatementRunner(GremlinTransaction gremlinTransaction,
                                   CypherGremlinClient client)
     {
         this.gremlinTransaction = gremlinTransaction;

@@ -2,7 +2,6 @@ package org.opencypher.gremlin.neo4j.ogm.request;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -27,8 +26,10 @@ import org.neo4j.ogm.request.RowModelRequest;
 import org.neo4j.ogm.request.Statement;
 import org.neo4j.ogm.response.EmptyResponse;
 import org.neo4j.ogm.response.Response;
-import org.opencypher.gremlin.neo4j.ogm.response.GremlinEntityAdapter;
+import org.opencypher.gremlin.neo4j.driver.Neo4jDriverEntityAdapter;
+import org.opencypher.gremlin.neo4j.ogm.response.GremlinGraphRowModelResponse;
 import org.opencypher.gremlin.neo4j.ogm.response.GremlinModelResponse;
+import org.opencypher.gremlin.neo4j.ogm.response.GremlinRestModelResponse;
 import org.opencypher.gremlin.neo4j.ogm.response.GremlinRowModelResponse;
 import org.opencypher.gremlin.translation.CypherAst;
 import org.opencypher.gremlin.translation.groovy.GroovyPredicate;
@@ -36,21 +37,17 @@ import org.opencypher.gremlin.translation.translator.Translator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import scala.collection.parallel.ParIterableLike.FlatMap;
-
 public class GremlinRequest implements Request
 {
 
     private static final Logger logger = LoggerFactory.getLogger(GremlinRequest.class);
 
     private final StatementRunner statementRunner;
-    private final GremlinEntityAdapter entityAdapter;
+    private final Neo4jDriverEntityAdapter entityAdapter = new Neo4jDriverEntityAdapter();
 
-    public GremlinRequest(StatementRunner statementRunner,
-                          GremlinEntityAdapter entityAdapter)
+    public GremlinRequest(StatementRunner statementRunner)
     {
         this.statementRunner = statementRunner;
-        this.entityAdapter = entityAdapter;
     }
 
     @Override
@@ -112,13 +109,19 @@ public class GremlinRequest implements Request
     @Override
     public Response<GraphRowListModel> execute(GraphRowListModelRequest query)
     {
-        return null;
+        if (query.getStatement().length() == 0) {
+            return new EmptyResponse();
+        }
+        return new GremlinGraphRowModelResponse(executeRequest(query), entityAdapter);
     }
 
     @Override
     public Response<RestModel> execute(RestModelRequest query)
     {
-        return null;
+        if (query.getStatement().length() == 0) {
+            return new EmptyResponse();
+        }
+        return new GremlinRestModelResponse(executeRequest(query), entityAdapter);
     }
 
     private org.neo4j.driver.v1.StatementResult executeRequest(Statement query)
@@ -182,7 +185,11 @@ public class GremlinRequest implements Request
         if (value instanceof Number) {
             return value.toString();
         }
-            
+
+        if (value == null) {
+            throw new IllegalArgumentException("Null values not supported.");
+        }
+        
         return "'" + value.toString() + "'";
     }
     
