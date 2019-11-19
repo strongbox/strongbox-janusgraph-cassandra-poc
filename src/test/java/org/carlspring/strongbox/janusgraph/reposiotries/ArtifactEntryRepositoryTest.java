@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 import javax.inject.Inject;
@@ -62,10 +63,12 @@ public class ArtifactEntryRepositoryTest
         assertNotNull(artifactEntrySaved);
         assertEquals(artifactEntrySaved.getUuid(), artifactEntry.getUuid());
         assertNotNull(artifactEntrySaved.getArtifactCoordinates());
-        assertNotNull(artifactEntrySaved.getTags());
         assertEquals(createdOn, artifactEntrySaved.getCreated());
-        // TODO: fix the embedded set
-        //assertTrue(artifactEntrySaved.getTags().contains("release"));
+        Set<String> tags = artifactEntrySaved.getTags();
+        assertNotNull(tags);
+        assertEquals(2, tags.size());
+        assertTrue(tags.contains("release"));
+        assertTrue(tags.contains("stabile"));
     }
 
     @Test
