@@ -14,17 +14,16 @@ import org.neo4j.ogm.transaction.Transaction;
 import org.neo4j.ogm.transaction.Transaction.Type;
 import org.neo4j.ogm.transaction.TransactionManager;
 import org.opencypher.gremlin.client.CypherGremlinClient;
-import org.opencypher.gremlin.neo4j.driver.GremlinStatementRunner;
+import org.opencypher.gremlin.neo4j.driver.CypherGremlinStatementRunner;
 import org.opencypher.gremlin.neo4j.ogm.request.GremlinRequest;
-import org.opencypher.gremlin.neo4j.ogm.response.GremlinEntityAdapter;
 import org.opencypher.gremlin.neo4j.ogm.transaction.GremlinTransaction;
 
-public class GremlinDriver extends AbstractConfigurableDriver
+public class JanusGraphDriver extends AbstractConfigurableDriver
 {
 
     private final JanusGraph graph;
 
-    public GremlinDriver(JanusGraph graph)
+    public JanusGraphDriver(JanusGraph graph)
     {
         this.graph = graph;
     }
@@ -65,8 +64,7 @@ public class GremlinDriver extends AbstractConfigurableDriver
         Graph graph = gremlinTransaction.getNativeTransaction();
         CypherGremlinClient cypherGremlinClient = CypherGremlinClient.inMemory(graph.traversal());
 
-        return new GremlinRequest(new GremlinStatementRunner(gremlinTransaction, cypherGremlinClient),
-                new GremlinEntityAdapter(typeSystem));
+        return new GremlinRequest(new CypherGremlinStatementRunner(gremlinTransaction, cypherGremlinClient));
     }
 
     @Override
@@ -78,7 +76,7 @@ public class GremlinDriver extends AbstractConfigurableDriver
     @Override
     protected String getTypeSystemName()
     {
-        return GremlinDriver.class.getName() + ".types";
+        return JanusGraphDriver.class.getName() + ".types";
     }
 
 }

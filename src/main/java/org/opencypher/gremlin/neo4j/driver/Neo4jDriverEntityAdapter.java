@@ -1,4 +1,4 @@
-package org.opencypher.gremlin.neo4j.ogm.response;
+package org.opencypher.gremlin.neo4j.driver;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,17 +10,10 @@ import org.neo4j.driver.v1.types.Entity;
 import org.neo4j.driver.v1.types.Node;
 import org.neo4j.driver.v1.types.Path;
 import org.neo4j.driver.v1.types.Relationship;
-import org.neo4j.ogm.driver.TypeSystem;
+import org.neo4j.ogm.driver.TypeSystem.NoNativeTypes;
 
-public class GremlinEntityAdapter
+public class Neo4jDriverEntityAdapter
 {
-
-    private final TypeSystem typeSystem;
-
-    public GremlinEntityAdapter(TypeSystem typeSystem)
-    {
-        this.typeSystem = typeSystem;
-    }
 
     public boolean isPath(Object value)
     {
@@ -115,8 +108,8 @@ public class GremlinEntityAdapter
         else
         {
             Object object = value.asObject();
-            return this.typeSystem.getNativeToMappedTypeAdapter(object.getClass())
-                                  .apply(object);
+            return NoNativeTypes.INSTANCE.getNativeToMappedTypeAdapter(object.getClass())
+                                         .apply(object);
         }
     }
 
