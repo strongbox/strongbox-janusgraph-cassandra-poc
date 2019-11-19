@@ -134,7 +134,7 @@ public class GremlinRequest implements Request
             cypherStatement = normalizeMergeStatement(cypherStatement, parameterMap);
         }
 
-        cypherStatement = inlileParameters(cypherStatement, parameterMap);
+        cypherStatement = inlineParameters(cypherStatement, parameterMap);
 
         logger.debug("Cypher(normalized): {}", cypherStatement);
         CypherAst ast = CypherAst.parse(cypherStatement, parameterMap);
@@ -147,7 +147,7 @@ public class GremlinRequest implements Request
         return statementRunner.run(cypherStatement, parameterMap);
     }
 
-    protected String inlileParameters(String cypherStatement,
+    protected String inlineParameters(String cypherStatement,
                                       Map<String, Object> parameterMap)
     {
         String placeholderFormat;
@@ -173,6 +173,11 @@ public class GremlinRequest implements Request
 
         for (Pair<String, Object> p : props)
         {
+            Class<?> propClass = p.getValue().getClass();
+            if (propClass.isArray() || Collection.class.isAssignableFrom(propClass))
+            {
+                continue;
+            }
             cypherStatement = cypherStatement.replace(String.format(placeholderFormat, p.getKey()),
                                                       inlinedValue(p.getValue()));
         }
