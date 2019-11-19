@@ -105,12 +105,10 @@ public class Neo4jDriverEntityAdapter
         {
             return value.asList(this::toMapped);
         }
-        else
-        {
-            Object object = value.asObject();
-            return NoNativeTypes.INSTANCE.getNativeToMappedTypeAdapter(object.getClass())
-                                         .apply(object);
-        }
+        
+        Object object = value.asObject();
+        return NoNativeTypes.INSTANCE.getNativeToMappedTypeAdapter(object.getClass())
+                                     .apply(object);
     }
 
 }
