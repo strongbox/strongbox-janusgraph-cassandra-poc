@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -19,9 +20,12 @@ import org.apache.tinkerpop.gremlin.structure.Edge;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.carlspring.strongbox.janusgraph.app.Application;
 import org.carlspring.strongbox.janusgraph.domain.ArtifactCoordinates;
+import org.carlspring.strongbox.janusgraph.domain.ArtifactDependency;
 import org.carlspring.strongbox.janusgraph.domain.ArtifactEntry;
 import org.janusgraph.core.JanusGraph;
 import org.junit.jupiter.api.Test;
+import org.neo4j.ogm.session.Session;
+import org.neo4j.ogm.session.SessionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -38,6 +42,9 @@ public class ArtifactEntryRepositoryTest
     @Inject
     private JanusGraph janusGraph;
 
+    @Inject
+    private SessionFactory sessionFactory;
+    
     @Test
     public void crudShouldWork()
     {
@@ -72,7 +79,7 @@ public class ArtifactEntryRepositoryTest
     }
 
     @Test
-    void manyToOneRelationShouldWork()
+    public void manyToOneRelationShouldWork()
     {
         String artifactCoordinatesUuid = UUID.randomUUID().toString();
         ArtifactCoordinates artifactCoordinates = new ArtifactCoordinates();
@@ -129,6 +136,43 @@ public class ArtifactEntryRepositoryTest
         Vertex artifactEntryAnotherVertex = vertexQuery.next();
         assertEquals(artifactCoordinatesUuid, artifactCoordinatesVertex.property("uuid").value());
         assertEquals(ArtifactEntry.class.getSimpleName(), artifactEntryAnotherVertex.label());
+    }
+    
+    @Test
+    public void artifactDependencyTreeShouldWork() {
+        String subjectUuid = UUID.randomUUID().toString();
+        
+        ArtifactEntry artifactEntrySubject = new ArtifactEntry();
+        artifactEntrySubject.setUuid(subjectUuid);
+        artifactEntrySubject.setStorageId("storage0");
+        artifactEntrySubject.setRepositoryId("releases");
+        artifactEntrySubject.setSizeInBytes(123L);
+        artifactEntrySubject.setTags(new HashSet<>(Arrays.asList("release", "stabile")));
+        //artifactEntry.setArtifactCoordinates(artifactCoordinates);
+        artifactEntrySubject.setCreated(new Date());
+
+        String dependencyUuid = UUID.randomUUID().toString();
+        ArtifactEntry artifactEntryDependency = new ArtifactEntry();
+        artifactEntryDependency.setUuid(dependencyUuid);
+        artifactEntryDependency.setStorageId("storage0");
+        artifactEntryDependency.setRepositoryId("releases");
+        artifactEntryDependency.setSizeInBytes(123L);
+        artifactEntryDependency.setTags(new HashSet<>(Arrays.asList("release", "stabile")));
+        //artifactEntry.setArtifactCoordinates(artifactCoordinates);
+        artifactEntryDependency.setCreated(new Date());
+        
+        ArtifactDependency artifactDependency = new ArtifactDependency();
+        artifactDependency.setUuid(UUID.randomUUID().toString());
+        artifactDependency.setSubject(artifactEntrySubject);
+        artifactDependency.setDependency(artifactEntryDependency);
+        
+        Session session = sessionFactory.openSession();
+        session.save(artifactEntrySubject);
+        session.save(artifactEntryDependency);
+        session.save(artifactDependency);
+
+        List<ArtifactEntry> dependencies = artifactEntryRepository.findAllDependentArtifactEntries(dependencyUuid);
+        assertEquals(1, dependencies.size());
     }
 
 }

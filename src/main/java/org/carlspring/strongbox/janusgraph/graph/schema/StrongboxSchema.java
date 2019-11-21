@@ -7,14 +7,12 @@ import java.util.concurrent.ExecutionException;
 
 import javax.inject.Inject;
 
-import org.apache.tinkerpop.gremlin.process.traversal.Order;
-import org.apache.tinkerpop.gremlin.structure.Direction;
 import org.apache.tinkerpop.gremlin.structure.Element;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.carlspring.strongbox.janusgraph.domain.ArtifactCoordinates;
+import org.carlspring.strongbox.janusgraph.domain.ArtifactDependency;
 import org.carlspring.strongbox.janusgraph.domain.ArtifactEntry;
 import org.janusgraph.core.Cardinality;
-import org.janusgraph.core.EdgeLabel;
 import org.janusgraph.core.JanusGraph;
 import org.janusgraph.core.Multiplicity;
 import org.janusgraph.core.PropertyKey;
@@ -76,7 +74,7 @@ public class StrongboxSchema
         jgm = jg.openManagement();
         try
         {
-            enableIndexes(jg, jgm, indexes);
+            enableIndexes(jgm, indexes);
             jgm.commit();
         }
         catch (Exception e)
@@ -87,7 +85,7 @@ public class StrongboxSchema
         }
     }
 
-    protected void enableIndexes(JanusGraph jg, JanusGraphManagement jgm,
+    protected void enableIndexes(JanusGraphManagement jgm,
                                  Set<String> indexes)
         throws InterruptedException,
         ExecutionException
@@ -146,6 +144,7 @@ public class StrongboxSchema
         // Edges
         makeEdgeLabelIfDoesNotExist(jgm, ArtifactEntry.class.getSimpleName() + "#" +
                                          ArtifactCoordinates.class.getSimpleName(), Multiplicity.MANY2ONE);
+        makeEdgeLabelIfDoesNotExist(jgm, ArtifactDependency.class.getSimpleName(), Multiplicity.ONE2MANY);
     }
 
     private Optional<String> buildIndexIfNecessary(final JanusGraphManagement jgm,

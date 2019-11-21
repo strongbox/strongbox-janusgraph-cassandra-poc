@@ -129,11 +129,7 @@ public class GremlinRequest implements Request
         Map<String, Object> parameterMap = query.getParameters();
         String cypherStatement = query.getStatement();
         logger.debug("Cypher: {} with params {}", cypherStatement, parameterMap);
-        if (cypherStatement.contains("MERGE"))
-        {
-            cypherStatement = normalizeMergeStatement(cypherStatement, parameterMap);
-        }
-
+        cypherStatement = normalizeNeo4jMergeStatement(cypherStatement, parameterMap);
         cypherStatement = inlineParameters(cypherStatement, parameterMap);
 
         logger.debug("Cypher(normalized): {}", cypherStatement);
@@ -211,17 +207,46 @@ public class GremlinRequest implements Request
         return Stream.of(Pair.of(root.getKey(), root.getValue()));
     }
     
-    protected String normalizeMergeStatement(String cypherStatement,
-                                             Map<String, Object> parameterMap)
+    protected String normalizeNeo4jMergeStatement(String cypherStatement,
+                                                  Map<String, Object> parameterMap)
     {
-        //cleanup multiple labels for DomainEntity inheritance 
-        cypherStatement = cypherStatement.replace(String.format(":`%s`", DomainEntity.class.getSimpleName()), "");
-        
-        if (!cypherStatement.contains("n=row.props"))
-        {
+        if (!cypherStatement.contains("MERGE")) {
             return cypherStatement;
         }
         
+        //cleanup multiple labels for DomainEntity inheritance
+        //TODO: make it generic
+        cypherStatement = cypherStatement.replace(String.format(":`%s`", DomainEntity.class.getSimpleName()), "");
+        //cleanup quotes
+        cypherStatement = cypherStatement.replaceAll("`", "");
+        
+        int mergeIndex = cypherStatement.indexOf("MERGE");
+        int setIndex = cypherStatement.indexOf("SET");
+        int returnIndex = cypherStatement.indexOf("RETURN");
+        
+        if (mergeIndex >= setIndex || setIndex >= returnIndex) {
+            //not a MERGE statement
+            return cypherStatement; 
+        }
+        
+        String mergeClause = cypherStatement.substring(mergeIndex, setIndex);
+        String setClause = cypherStatement.substring(setIndex, returnIndex);
+
+        String alias;
+        if (mergeClause.contains("n:"))
+        {
+            alias = "n";
+        }
+        else if (mergeClause.contains("rel:"))
+        {
+            alias = "rel";
+        }
+        else
+        {
+            throw new IllegalArgumentException(String.format("Failet to parse node alias from [%s].", mergeClause));
+        }
+                      
+        //`UNWIND {rows} as row` 
         Collection<Map<String, Object>> rows = (Collection<Map<String, Object>>) parameterMap.get("rows");
         if (rows == null || rows.size() == 0)
         {
@@ -232,18 +257,18 @@ public class GremlinRequest implements Request
         Map<String, Object> props = (Map<String, Object>) row.get("props");
         if (props == null || props.size() == 0)
         {
-            return cypherStatement;
+            throw new IllegalArgumentException("Emplpy `SET` not supported.");
         }
        
         //specify concrete properties to set
         String propsClause = props.keySet()
                                   .stream()
-                                  .map(p -> String.format("n.%s = row.props.%s", p, p))
+                                  .map(p -> String.format("%s.%s = row.props.%s", alias, p, p))
                                   .reduce((p1,
                                            p2) -> p1 + "," + p2)
                                   .get();
 
-        return cypherStatement.replace("n=row.props", propsClause);
+        return cypherStatement.replace(setClause, "SET " + propsClause + " ");
     }
 
     private static class MultiStatementBasedResponse implements Response<RowModel>
