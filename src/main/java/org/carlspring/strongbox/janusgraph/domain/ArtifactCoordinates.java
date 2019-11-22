@@ -6,6 +6,8 @@ import org.neo4j.ogm.annotation.NodeEntity;
 public class ArtifactCoordinates extends DomainEntity
 {
 
+    public static final String LABEL = "ArtifactCoordinates";
+    
     private String path;
     private String version;
 

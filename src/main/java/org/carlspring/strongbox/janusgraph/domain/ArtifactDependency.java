@@ -8,10 +8,12 @@ import org.neo4j.ogm.annotation.StartNode;
 public class ArtifactDependency extends DomainEntity
 {
 
+    public static final String LABEL = "ArtifactDependency";
+
     @StartNode
     private ArtifactEntry subject;
     @EndNode
-    private ArtifactEntry dependency;
+    private ArtifactCoordinates dependency;
 
     public ArtifactEntry getSubject()
     {
@@ -23,12 +25,12 @@ public class ArtifactDependency extends DomainEntity
         this.subject = subject;
     }
 
-    public ArtifactEntry getDependency()
+    public ArtifactCoordinates getDependency()
     {
         return dependency;
     }
 
-    public void setDependency(ArtifactEntry dependency)
+    public void setDependency(ArtifactCoordinates dependency)
     {
         this.dependency = dependency;
     }

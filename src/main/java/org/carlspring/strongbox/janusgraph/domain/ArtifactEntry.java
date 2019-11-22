@@ -11,13 +11,15 @@ import org.neo4j.ogm.annotation.typeconversion.DateString;
 public class ArtifactEntry extends DomainEntity
 {
 
+    public static final String LABEL = "ArtifactEntry";
+    
     private String storageId;
     private String repositoryId;
     private Long sizeInBytes;
     @DateString("yyyy-MM-dd HH:mm:ss.SSSXXX")
     private Date created;
     private Set<String> tags;
-    @Relationship(type = "ArtifactEntry#ArtifactCoordinates", direction = Relationship.OUTGOING)
+    @Relationship(type = "ArtifactEntry_ArtifactCoordinates", direction = Relationship.OUTGOING)
     private ArtifactCoordinates artifactCoordinates;
 
     public String getStorageId()
