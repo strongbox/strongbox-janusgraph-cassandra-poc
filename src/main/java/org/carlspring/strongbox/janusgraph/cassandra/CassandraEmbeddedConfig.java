@@ -3,6 +3,7 @@ package org.carlspring.strongbox.janusgraph.cassandra;
 import java.io.IOException;
 
 import org.apache.cassandra.service.CassandraDaemon;
+import org.apache.cassandra.service.StorageService;
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -28,6 +29,9 @@ public class CassandraEmbeddedConfig
 
         CassandraDaemon cassandraDaemon = new CassandraDaemon(true);
         cassandraDaemon.activate();
+
+        // Remove Cassandra StorageService shutdown hook to allow Spring context to shutdown in order
+        StorageService.instance.removeShutdownHook();
 
         return cassandraDaemon;
     }
