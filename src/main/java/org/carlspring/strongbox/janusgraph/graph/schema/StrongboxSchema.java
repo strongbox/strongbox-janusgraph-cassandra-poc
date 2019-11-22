@@ -116,7 +116,7 @@ public class StrongboxSchema
         buildIndexIfNecessary(jgm, ArtifactCoordinates.class.getSimpleName() + ".path", Vertex.class, propertyKey,
                               vertexLabel).ifPresent(result::add);
         
-//        EdgeLabel artifactEntryToArtifactCoordinates = jg.getEdgeLabel(ArtifactEntry.class.getSimpleName() + "#"
+//        EdgeLabel artifactEntryToArtifactCoordinates = jg.getEdgeLabel(ArtifactEntry.class.getSimpleName() + "_"
 //                + ArtifactCoordinates.class.getSimpleName());
 //        jgm.buildEdgeIndex(artifactEntryToArtifactCoordinates, "battlesByTime", Direction.OUT);
 
@@ -142,9 +142,9 @@ public class StrongboxSchema
         makeVertexLabelIfDoesNotExist(jgm, ArtifactCoordinates.class.getSimpleName());
 
         // Edges
-        makeEdgeLabelIfDoesNotExist(jgm, ArtifactEntry.class.getSimpleName() + "#" +
+        makeEdgeLabelIfDoesNotExist(jgm, ArtifactEntry.class.getSimpleName() + "_" +
                                          ArtifactCoordinates.class.getSimpleName(), Multiplicity.MANY2ONE);
-        makeEdgeLabelIfDoesNotExist(jgm, ArtifactDependency.class.getSimpleName(), Multiplicity.ONE2MANY);
+        makeEdgeLabelIfDoesNotExist(jgm, ArtifactDependency.class.getSimpleName(), Multiplicity.MULTI);
     }
 
     private Optional<String> buildIndexIfNecessary(final JanusGraphManagement jgm,

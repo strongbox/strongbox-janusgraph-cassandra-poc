@@ -11,9 +11,9 @@ import org.springframework.stereotype.Repository;
 public interface ArtifactEntryRepository extends CrudRepository<ArtifactEntry, String>
 {
 
-    @Query("MATCH (ac:`ArtifactCoordinates`)<-[aeac:`ArtifactEntry#ArtifactCoordinates`]-(ae:`ArtifactEntry`) WHERE ac.path=$path RETURN ae, aeac, ac")
+    @Query("MATCH (ac:`ArtifactCoordinates`)<-[aeac:`ArtifactEntry_ArtifactCoordinates`]-(ae:`ArtifactEntry`) WHERE ac.path=$path RETURN ae, aeac, ac")
     ArtifactEntry findByPath(String path);
  
-    @Query("MATCH (dependency:`ArtifactEntry` {uuid:$artifactEntryUuid})<-[:`ArtifactDependency`*]-(subject:`ArtifactEntry`) RETURN subject")
-    List<ArtifactEntry> findAllDependentArtifactEntries(String artifactEntryUuid);
+    @Query("MATCH (dependency:`ArtifactCoordinates`{uuid:$artifactCoordinatesUuid})<-[:`ArtifactDependency`*]-(subject:`ArtifactEntry`) RETURN subject")
+    List<ArtifactEntry> findAllDependentArtifactEntries(String artifactCoordinatesUuid);
 }
