@@ -12,6 +12,8 @@ import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSo
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.carlspring.strongbox.janusgraph.app.Application;
 import org.carlspring.strongbox.janusgraph.domain.ArtifactCoordinates;
+import org.carlspring.strongbox.janusgraph.domain.ArtifactCoordinatesEntity;
+import org.carlspring.strongbox.janusgraph.repositories.ArtifactCoordinatesRepository;
 import org.janusgraph.core.JanusGraph;
 import org.janusgraph.core.JanusGraphTransaction;
 import org.junit.jupiter.api.Test;
@@ -53,7 +55,7 @@ public class ArtifactCoordinatesReporitoryTest
         
         GraphTraversalSource g = janusGraph.traversal();
         
-        Map<String, Object> vertex1 = g.V().hasLabel("ArtifactCoordinates").has("path", eq("org/carlspring/test-artifact.jar")).project("ac").next();
+        Map<String, Object> vertex1 = g.V().hasLabel(ArtifactCoordinates.LABEL).has("path", eq("org/carlspring/test-artifact.jar")).project("ac").next();
         System.out.println(vertex1);
         
         Map<String, Object> vertex2 = g.V().has("path", eq("org/carlspring/test-artifact.jar")).hasLabel("ArtifactCoordinates").project("ac").next();
@@ -68,7 +70,7 @@ public class ArtifactCoordinatesReporitoryTest
             
             GraphTraversalSource g = tx.traversal();
             
-            artifactCoordinatesVertex = g.addV(ArtifactCoordinates.class.getSimpleName())
+            artifactCoordinatesVertex = g.addV(ArtifactCoordinates.LABEL)
                                          .property("uuid", UUID.randomUUID().toString())
                                          .property("path", "org/carlspring/test-artifact.jar")
                                          .property("version", "1.2.3")
@@ -81,12 +83,12 @@ public class ArtifactCoordinatesReporitoryTest
 
     @Test
     public void crudShouldWork() {
-        ArtifactCoordinates artifactCoordinates = new ArtifactCoordinates();
+        ArtifactCoordinatesEntity artifactCoordinates = new ArtifactCoordinatesEntity();
         artifactCoordinates.setPath("org/carlspring/test-artifact-1.0.0.jar");
         artifactCoordinates.setUuid(UUID.randomUUID().toString());
         artifactCoordinates.setVersion("1.0.0");
         
-        ArtifactCoordinates artifactCoordinatesSaved = artifactCoordinatesRepository.save(artifactCoordinates);
+        ArtifactCoordinatesEntity artifactCoordinatesSaved = artifactCoordinatesRepository.save(artifactCoordinates);
         assertEquals(artifactCoordinates.getUuid(), artifactCoordinatesSaved.getUuid());
         
         artifactCoordinates.setPath("org/carlspring/test-artifact-2.0.0.jar");
@@ -95,7 +97,7 @@ public class ArtifactCoordinatesReporitoryTest
         artifactCoordinatesSaved = artifactCoordinatesRepository.save(artifactCoordinates);
         assertEquals(artifactCoordinates.getUuid(), artifactCoordinatesSaved.getUuid());        
         
-        ArtifactCoordinates result = artifactCoordinatesRepository.findByPath("org/carlspring/test-artifact-1.0.0.jar");
+        ArtifactCoordinatesEntity result = artifactCoordinatesRepository.findByPath("org/carlspring/test-artifact-1.0.0.jar");
         assertEquals("org/carlspring/test-artifact-1.0.0.jar", result.getPath());
     }
     

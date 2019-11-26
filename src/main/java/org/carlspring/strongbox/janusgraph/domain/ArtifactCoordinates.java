@@ -1,34 +1,15 @@
 package org.carlspring.strongbox.janusgraph.domain;
 
-import org.neo4j.ogm.annotation.NodeEntity;
-
-@NodeEntity
-public class ArtifactCoordinates extends DomainEntity
+public interface ArtifactCoordinates extends DomainObject
 {
-
     public static final String LABEL = "ArtifactCoordinates";
-    
-    private String path;
-    private String version;
 
-    public String getVersion()
-    {
-        return version;
-    }
+    String getVersion();
 
-    public void setVersion(String version)
-    {
-        this.version = version;
-    }
+    void setVersion(String version);
 
-    public String getPath()
-    {
-        return path;
-    }
+    String getPath();
 
-    public void setPath(String id)
-    {
-        this.path = id;
-    }
+    void setPath(String id);
 
 }

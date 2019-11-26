@@ -3,8 +3,7 @@ package org.carlspring.strongbox.janusgraph.app;
 import org.carlspring.strongbox.janusgraph.cassandra.CassandraEmbeddedConfig;
 import org.carlspring.strongbox.janusgraph.graph.JanusGraphConfig;
 import org.carlspring.strongbox.janusgraph.graph.gremlin.server.GremlinServerConfig;
-import org.carlspring.strongbox.janusgraph.reposiotries.RepositoriesConfig;
-
+import org.carlspring.strongbox.janusgraph.repositories.RepositoriesConfig;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
