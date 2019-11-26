@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -27,12 +28,14 @@ import org.neo4j.ogm.request.Statement;
 import org.neo4j.ogm.response.EmptyResponse;
 import org.neo4j.ogm.response.Response;
 import org.opencypher.gremlin.neo4j.driver.Neo4jDriverEntityAdapter;
+import org.opencypher.gremlin.neo4j.ogm.CypherQueryUtils;
 import org.opencypher.gremlin.neo4j.ogm.response.GremlinGraphRowModelResponse;
 import org.opencypher.gremlin.neo4j.ogm.response.GremlinModelResponse;
 import org.opencypher.gremlin.neo4j.ogm.response.GremlinRestModelResponse;
 import org.opencypher.gremlin.neo4j.ogm.response.GremlinRowModelResponse;
 import org.opencypher.gremlin.translation.CypherAst;
 import org.opencypher.gremlin.translation.groovy.GroovyPredicate;
+import org.opencypher.gremlin.translation.ir.model.Id;
 import org.opencypher.gremlin.translation.translator.Translator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -129,10 +132,15 @@ public class GremlinRequest implements Request
         Map<String, Object> parameterMap = query.getParameters();
         String cypherStatement = query.getStatement();
         logger.debug("Cypher: {} with params {}", cypherStatement, parameterMap);
-        cypherStatement = normalizeNeo4jMergeStatement(cypherStatement, parameterMap);
-        cypherStatement = inlineParameters(cypherStatement, parameterMap);
 
+        cypherStatement = inlineParameters(cypherStatement, parameterMap);
+        cypherStatement = normalizeNeo4jMergeStatement(cypherStatement, parameterMap);
+        cypherStatement = CypherQueryUtils.normalizeMatchByIdWithRelationResult(cypherStatement,
+                                                                                Optional.ofNullable(parameterMap.get("id"))
+                                                                                        .map(id -> id.toString())
+                                                                                        .orElse(null));
         logger.debug("Cypher(normalized): {}", cypherStatement);
+        
         CypherAst ast = CypherAst.parse(cypherStatement, parameterMap);
         Translator<String, GroovyPredicate> translator = Translator.builder()
                                                                    .gremlinGroovy()
@@ -169,11 +177,6 @@ public class GremlinRequest implements Request
 
         for (Pair<String, Object> p : props)
         {
-            Class<?> propClass = p.getValue().getClass();
-            if (propClass.isArray() || Collection.class.isAssignableFrom(propClass))
-            {
-                continue;
-            }
             cypherStatement = cypherStatement.replace(String.format(placeholderFormat, p.getKey()),
                                                       inlinedValue(p.getValue()));
         }
@@ -267,8 +270,9 @@ public class GremlinRequest implements Request
                                   .reduce((p1,
                                            p2) -> p1 + "," + p2)
                                   .get();
-
-        return cypherStatement.replace(setClause, "SET " + propsClause + " ");
+        
+        cypherStatement = cypherStatement.replace(setClause, "SET " + propsClause + " ");
+        return cypherStatement.replace("row.props.uuid", "'" + props.get("uuid").toString() + "'");
     }
 
     private static class MultiStatementBasedResponse implements Response<RowModel>

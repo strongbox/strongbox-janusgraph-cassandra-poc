@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.janusgraph.reposiotries;
+package org.carlspring.strongbox.janusgraph.repositories;
 
 import org.janusgraph.core.JanusGraph;
 import org.neo4j.ogm.session.SessionFactory;

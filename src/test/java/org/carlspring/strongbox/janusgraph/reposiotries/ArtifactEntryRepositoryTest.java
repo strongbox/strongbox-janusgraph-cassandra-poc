@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.janusgraph.reposiotries;
 
 import static org.apache.tinkerpop.gremlin.process.traversal.P.eq;
+import static org.apache.tinkerpop.gremlin.process.traversal.P.neq;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -14,15 +15,20 @@ import java.util.UUID;
 
 import javax.inject.Inject;
 
-import org.apache.tinkerpop.gremlin.process.traversal.P;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversal;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
 import org.apache.tinkerpop.gremlin.structure.Edge;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.carlspring.strongbox.janusgraph.app.Application;
+import org.carlspring.strongbox.janusgraph.domain.Artifact;
 import org.carlspring.strongbox.janusgraph.domain.ArtifactCoordinates;
+import org.carlspring.strongbox.janusgraph.domain.ArtifactCoordinatesEntity;
 import org.carlspring.strongbox.janusgraph.domain.ArtifactDependency;
-import org.carlspring.strongbox.janusgraph.domain.ArtifactEntry;
+import org.carlspring.strongbox.janusgraph.domain.ArtifactDependencyEntity;
+import org.carlspring.strongbox.janusgraph.domain.ArtifactEntity;
+import org.carlspring.strongbox.janusgraph.domain.Edges;
+import org.carlspring.strongbox.janusgraph.repositories.ArtifactCoordinatesRepository;
+import org.carlspring.strongbox.janusgraph.repositories.ArtifactEntryRepository;
 import org.janusgraph.core.JanusGraph;
 import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.session.SessionFactory;
@@ -51,13 +57,13 @@ public class ArtifactEntryRepositoryTest
     @Test
     public void crudShouldWork()
     {
-        ArtifactCoordinates artifactCoordinates = new ArtifactCoordinates();
+        ArtifactCoordinatesEntity artifactCoordinates = new ArtifactCoordinatesEntity();
         artifactCoordinates.setPath("org/carlspring/test-artifact-3.0.0.jar");
         artifactCoordinates.setUuid(UUID.randomUUID().toString());
         artifactCoordinates.setVersion("3.0.0");
 
         Date createdOn = new Date();
-        ArtifactEntry artifactEntry = new ArtifactEntry();
+        ArtifactEntity artifactEntry = new ArtifactEntity();
         artifactEntry.setUuid(UUID.randomUUID().toString());
         artifactEntry.setStorageId("storage0");
         artifactEntry.setRepositoryId("releases");
@@ -66,10 +72,10 @@ public class ArtifactEntryRepositoryTest
         artifactEntry.setTags(new HashSet<>(Arrays.asList("release", "stabile")));
         artifactEntry.setArtifactCoordinates(artifactCoordinates);
 
-        ArtifactEntry artifactEntrySaved = artifactEntryRepository.save(artifactEntry);
+        ArtifactEntity artifactEntrySaved = artifactEntryRepository.save(artifactEntry);
         assertEquals(artifactEntrySaved.getUuid(), artifactEntry.getUuid());
 
-        ArtifactDependency artifactDependency = new ArtifactDependency();
+        ArtifactDependencyEntity artifactDependency = new ArtifactDependencyEntity();
         artifactDependency.setUuid(UUID.randomUUID().toString());
         artifactDependency.setSubject(artifactEntry);
         artifactDependency.setDependency(artifactCoordinates);
@@ -101,7 +107,7 @@ public class ArtifactEntryRepositoryTest
          .property("version",
                    "4.0.0")
          .as("ac")
-         .addV(ArtifactEntry.LABEL)
+         .addV(Artifact.LABEL)
          .property("uuid", artifactEntryUuid)
          .property("storageId", "storage0")
          .property("repositoryId", "releases")
@@ -109,24 +115,24 @@ public class ArtifactEntryRepositoryTest
          .property("tags", new HashSet<>(Arrays.asList("release", "stabile")))
          .property("created", new Date())
          .as("ae")
-         .addE("ArtifactEntry_ArtifactCoordinates")
+         .addE(Edges.ARTIFACT_ARTIFACTCOORDINATES)
          .to("ac")
          .next();
 
         // Relation should exists
         GraphTraversal<Vertex, Edge> edgeQuery = g.V()
-                                                  .hasLabel(ArtifactEntry.class.getSimpleName())
+                                                  .hasLabel(Artifact.LABEL)
                                                   .has("uuid", artifactEntryUuid)
                                                   .outE();
         assertTrue(edgeQuery.hasNext());
         Edge artifactEntry2ArtifactCoordinatesEdge = edgeQuery.next();
         logger.info(String.valueOf(artifactEntry2ArtifactCoordinatesEdge));
-        assertEquals(ArtifactEntry.class.getSimpleName() + "_" + ArtifactCoordinates.class.getSimpleName(),
+        assertEquals(Edges.ARTIFACT_ARTIFACTCOORDINATES,
                      artifactEntry2ArtifactCoordinatesEdge.label());
 
         // ArtifactCoordinates should exists
         GraphTraversal<Vertex, Vertex> vertexQuery = g.V()
-                                                      .hasLabel(ArtifactEntry.class.getSimpleName())
+                                                      .hasLabel(Artifact.LABEL)
                                                       .has("uuid", artifactEntryUuid)
                                                       .outE()
                                                       .inV();
@@ -134,19 +140,19 @@ public class ArtifactEntryRepositoryTest
         Vertex artifactCoordinatesVertex = vertexQuery.next();
         logger.info(String.valueOf(artifactCoordinatesVertex));
         assertEquals(artifactCoordinatesUuid, artifactCoordinatesVertex.property("uuid").value());
-        assertEquals(ArtifactCoordinates.class.getSimpleName(), artifactCoordinatesVertex.label());
+        assertEquals(ArtifactCoordinates.LABEL, artifactCoordinatesVertex.label());
 
         // ArtifactCoordinates should still exists
         vertexQuery = g.V()
-                       .hasLabel(ArtifactCoordinates.class.getSimpleName())
+                       .hasLabel(ArtifactCoordinates.LABEL)
                        .has("path", eq("org/carlspring/test-artifact-4.0.0.jar"))
                        .inE()
                        .outV()
-                       .hasLabel(ArtifactEntry.class.getSimpleName());
+                       .hasLabel(Artifact.LABEL);
         assertTrue(vertexQuery.hasNext());
         Vertex artifactEntryAnotherVertex = vertexQuery.next();
         assertEquals(artifactCoordinatesUuid, artifactCoordinatesVertex.property("uuid").value());
-        assertEquals(ArtifactEntry.class.getSimpleName(), artifactEntryAnotherVertex.label());
+        assertEquals(Artifact.LABEL, artifactEntryAnotherVertex.label());
         
         g.tx().rollback();
     }
@@ -155,7 +161,7 @@ public class ArtifactEntryRepositoryTest
     public void artifactDependencyTreeShouldWork()
     {
         GraphTraversalSource g = janusGraph.traversal();
-
+        
         // ArtifactEntry->ArtifactDependency\
         // ..................................->ArtifactCoordinates
         // ArtifactEntry->ArtifactDependency/
@@ -168,14 +174,14 @@ public class ArtifactEntryRepositoryTest
          .property("version",
                    "777")
          .as("adc1")
-         .addV(ArtifactEntry.LABEL)
+         .addV(Artifact.LABEL)
          .property("uuid", UUID.randomUUID().toString())
          .property("storageId", "storage0")
          .property("repositoryId", "releases")
          .as("ae1")
          .addE(ArtifactDependency.LABEL)
          .to("adc1")
-         .addV(ArtifactEntry.LABEL)
+         .addV(Artifact.LABEL)
          .property("uuid", UUID.randomUUID().toString())
          .property("storageId", "storage0")
          .property("repositoryId", "releases")
@@ -196,8 +202,8 @@ public class ArtifactEntryRepositoryTest
 
         g.tx().commit();
 
-        ArtifactCoordinates adc1 = artifactCoordinatesRepository.findByPath("org/carlspring/test/dependency.jar");
-        List<ArtifactEntry> dependencies = artifactEntryRepository.findAllDependentArtifactEntries(adc1.getUuid());
+        ArtifactCoordinatesEntity adc1 = artifactCoordinatesRepository.findByPath("org/carlspring/test/dependency.jar");
+        List<ArtifactEntity> dependencies = artifactEntryRepository.findAllDependentArtifactEntries(adc1.getUuid());
         assertEquals(2, dependencies.size());
     }
 

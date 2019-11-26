@@ -1,85 +1,96 @@
 package org.carlspring.strongbox.janusgraph.domain;
 
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Set;
 
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.typeconversion.DateString;
 
-@NodeEntity
-public class ArtifactEntry extends DomainEntity
+@NodeEntity(Artifact.LABEL)
+public class ArtifactEntity extends DomainEntity implements Artifact
 {
 
-    public static final String LABEL = "ArtifactEntry";
-    
     private String storageId;
     private String repositoryId;
     private Long sizeInBytes;
     @DateString("yyyy-MM-dd HH:mm:ss.SSSXXX")
     private Date created;
-    private Set<String> tags;
-    @Relationship(type = "ArtifactEntry_ArtifactCoordinates", direction = Relationship.OUTGOING)
-    private ArtifactCoordinates artifactCoordinates;
+    private Set<String> tags = new HashSet<>();
+    @Relationship(type = Edges.ARTIFACT_ARTIFACTCOORDINATES, direction = Relationship.OUTGOING)
+    private ArtifactCoordinatesEntity artifactCoordinates;
 
+    @Override
     public String getStorageId()
     {
         return storageId;
     }
 
+    @Override
     public void setStorageId(String storageId)
     {
         this.storageId = storageId;
     }
 
+    @Override
     public String getRepositoryId()
     {
         return repositoryId;
     }
 
+    @Override
     public void setRepositoryId(String repositoryId)
     {
         this.repositoryId = repositoryId;
     }
 
+    @Override
     public Long getSizeInBytes()
     {
         return sizeInBytes;
     }
 
+    @Override
     public void setSizeInBytes(Long sizeInBytes)
     {
         this.sizeInBytes = sizeInBytes;
     }
 
+    @Override
     public Date getCreated()
     {
         return created;
     }
 
+    @Override
     public void setCreated(final Date created)
     {
         this.created = created;
     }
 
+    @Override
     public Set<String> getTags()
     {
         return tags;
     }
 
+    @Override
     public void setTags(Set<String> tags)
     {
         this.tags = tags;
     }
 
-    public ArtifactCoordinates getArtifactCoordinates()
+    @Override
+    public ArtifactCoordinatesEntity getArtifactCoordinates()
     {
         return artifactCoordinates;
     }
 
+    @Override
     public void setArtifactCoordinates(ArtifactCoordinates artifactCoordinates)
     {
-        this.artifactCoordinates = artifactCoordinates;
+        this.artifactCoordinates = (ArtifactCoordinatesEntity) artifactCoordinates;
     }
 
 }
