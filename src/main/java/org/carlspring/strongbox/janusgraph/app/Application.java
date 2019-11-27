@@ -4,6 +4,7 @@ import org.carlspring.strongbox.janusgraph.cassandra.CassandraEmbeddedConfig;
 import org.carlspring.strongbox.janusgraph.graph.JanusGraphConfig;
 import org.carlspring.strongbox.janusgraph.graph.gremlin.server.GremlinServerConfig;
 import org.carlspring.strongbox.janusgraph.repositories.RepositoriesConfig;
+import org.carlspring.strongbox.janusgraph.rest.controllers.ControllersConfig;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -14,7 +15,8 @@ import org.springframework.context.annotation.Import;
 @Import({ CassandraEmbeddedConfig.class,
           JanusGraphConfig.class,
           GremlinServerConfig.class,
-          RepositoriesConfig.class })
+          RepositoriesConfig.class,
+          ControllersConfig.class})
 public class Application
 {
 
