@@ -159,13 +159,19 @@ var graphioGremlin = (function(){
 				send_to_server(gremlin_query,'search',null,message);
 			}
 		} else {
-			
-			let gremlin_query_edges = "edges = " + traversal_source + ".V(nodes).aggregate('node').outE().as('edge').inV().where(within('node')).select('edge').toList();";
-	        let gremlin_query = "nodes = " + custom_query + ";" + gremlin_query_edges + "[nodes,edges]";
 
-			console.log(gremlin_query);
-	        var message = "";
-	        send_to_server(gremlin_query,'search',null,message);
+			if(custom_query.includes("toList()")) {
+				    let gremlin_query_edges = "edges = " + traversal_source + ".V(nodes).aggregate('node').outE().as('edge').inV().where(within('node')).select('edge').toList();";
+	        	let gremlin_query = "nodes = " + custom_query + ";" + gremlin_query_edges + "[nodes,edges]";
+
+				    console.log(gremlin_query);
+	        	var message = "";
+	        	send_to_server(gremlin_query,'search',null,message);
+			} else {
+				    console.log(custom_query);
+	        	var message = "";
+	        	send_to_server(custom_query,'editGraph',null,message);
+			}
 		}
 	}
 
