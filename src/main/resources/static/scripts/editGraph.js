@@ -6,31 +6,31 @@
 		else{
 			x.style.display ="none" ;
 		}
-		document.getElementById("addVertexForm").style.display='none';
-		document.getElementById("editVertexForm").style.display='none';
-		document.getElementById("addEditEdgeForm").style.display='none';
+		// document.getElementById("addVertexForm").style.display='none';
+		// document.getElementById("editVertexForm").style.display='none';
+		// document.getElementById("addEditEdgeForm").style.display='none';
 
 	}
-	
-	function addVertexForm() {
-		document.getElementById("addVertexForm").style.display='block';
-		document.getElementById("editVertexForm").style.display='none';
-		document.getElementById("addEditEdgeForm").style.display='none';
-	}
-		
-	function editVertexForm() {
-		document.getElementById("addVertexForm").style.display='none';
-		document.getElementById("editVertexForm").style.display='block';
-		document.getElementById("addEditEdgeForm").style.display='none';
-	}
 
-	
-	function addEditEdgeForm() {
-		document.getElementById("addVertexForm").style.display='none';
-		document.getElementById("editVertexForm").style.display='none';
-		document.getElementById("addEditEdgeForm").style.display='block';
+	// function addVertexForm() {
+	// 	document.getElementById("addVertexForm").style.display='block';
+	// 	document.getElementById("editVertexForm").style.display='none';
+	// 	document.getElementById("addEditEdgeForm").style.display='none';
+	// }
 
-	}
+	// function editVertexForm() {
+	// 	 document.getElementById("addVertexForm").style.display='none';
+	// 	document.getElementById("editVertexForm").style.display='block';
+	// 	document.getElementById("addEditEdgeForm").style.display='none';
+	// }
+
+
+	// function addEditEdgeForm() {
+	//      document.getElementById("addVertexForm").style.display='none';
+	// 	document.getElementById("editVertexForm").style.display='none';
+	// 	document.getElementById("addEditEdgeForm").style.display='block';
+
+	// }
 		
 	function addVertex()  {
 		
@@ -126,5 +126,3 @@
 		editGraph();
 		}
 	}
-	
-	

@@ -100,9 +100,9 @@
 			<li>
 				<div class="form-inline my-2 my-lg-0" id="editGraph" style="display:none; margin-left:10px;">
 					<div class="form-inline my-2 my-lg-0">
-						<button class="btn btn-default" onclick="addVertexForm()"> Add Vertex </button><br>
-						<button class="btn btn-default" onclick="editVertexForm()"> Edit Vertex </button><br>
-						<button class="btn btn-default" onclick="addEditEdgeForm()"> Add/Edit Edge </button><br>
+						<button class="btn btn-default" data-toggle="modal" data-target="#addVertexModal"> Add Vertex </button><br>
+						<button class="btn btn-default" data-toggle="modal" data-target="#editVertexModal"> Edit Vertex </button><br>
+						<button class="btn btn-default" data-toggle="modal" data-target="#addEditEdgeModal"> Add/Edit Edge </button><br>
 					</div>
 				</div>
 			</li>
@@ -129,65 +129,69 @@
 		<div class="main" id="main">
 			<svg></svg>
 		</div>
-		<div class="aside left_bar_edit"><div class="nav input_unit_container", id="addVertexForm" style="display:none;">
-			<h2>Add Vertex :</h2>
-			<div class="nav input_unit_container form-group">
-				<label for="vertexLabel">Vertex Label: </label>
-				<input type="text" name="vertexLabel" id="vertexLabel" class="form-control" placeholder="Enter Vertex Label">
+		<!-- <div class="aside left_bar_edit">
+			<div class="nav input_unit_container", id="addVertexForm" style="display:none;">
+				<h2>Add Vertex :</h2>
+				<div class="nav input_unit_container form-group">
+					<label for="vertexLabel">Vertex Label: </label>
+					<input type="text" name="vertexLabel" id="vertexLabel" class="form-control" placeholder="Enter Vertex Label">
+				</div>
+				<div class="nav input_unit_container form-group">
+					<label for="vertexPropertyName">Vertex Property:</label>
+					<input type="text" name="vertexPropertyName" class="form-control" id="vertexPropertyName" placeholder="Enter Comma Seperated Property Name (e.g. name,age,gender)"  size="45">
+				</div>
+				<div class="nav input_unit_container form-group">
+					<label for="vertexPropertyValue">Property Value:</label>
+					<input type="text" name="vertexPropertyValue" class="form-control" id="vertexPropertyValue"  placeholder="Enter Comma Seperated Property Value (e.g. Sandeep,27,male)">
+				</div>
+				<button class="btn btn-default btn-block" onclick="addVertex()"> Add Vertex </button>
 			</div>
-			<div class="nav input_unit_container form-group">
-				<label for="vertexPropertyName">Vertex Property:</label>
-				<input type="text" name="vertexPropertyName" class="form-control" id="vertexPropertyName" placeholder="Enter Comma Seperated Property Name (e.g. name,age,gender)"  size="45">
+			<div class="nav input_unit_container", id="editVertexForm" style="display:none;">
+				<h2>Edit Vertex :</h2>
+				<div class="nav input_unit_container form-group">
+					<label for="vertexId" > Vertex ID: </label>
+					<input type="text" name="vertexId" id="vertexId" class="form-control" size="45"  placeholder="Enter Vertex ID (e.g. 123)">
+				</div>
+				<div class="nav input_unit_container form-group">
+					<label for="vertexPropertyName" > Vertex Property: </label>
+					<input type="text" name="vertexPropertyName_1" id="vertexPropertyName_1" class="form-control" placeholder="Enter Comma Seperated Property Name (e.g. name,age)">
+				</div>
+				<div class="nav input_unit_container form-group">
+					<label for="vertexPropertyValue" > Property Value: </label>
+					<input type="text" name="vertexPropertyValue_1" id="vertexPropertyValue_1" class="form-control" placeholder="Enter Comma Seperated Property Value (e.g. Sandeep,25)">
+				</div>
+				<button class="btn btn-default btn-block" onclick="editVertex()"> Edit Vertex </button>
 			</div>
-			<div class="nav input_unit_container form-group">
-				<label for="vertexPropertyValue">Property Value:</label>
-				<input type="text" name="vertexPropertyValue" class="form-control" id="vertexPropertyValue"  placeholder="Enter Comma Seperated Property Value (e.g. Sandeep,27,male)">
-			</div>
-			<button class="btn btn-default btn-block" onclick="addVertex()"> Add Vertex </button>
-		</div><div class="nav input_unit_container", id="editVertexForm" style="display:none;">
-			<h2>Edit Vertex :</h2>
-			<div class="nav input_unit_container form-group">
-				<label for="vertexId" > Vertex ID: </label>
-				<input type="text" name="vertexId" id="vertexId" class="form-control" size="45"  placeholder="Enter Vertex ID (e.g. 123)">
-			</div>
-			<div class="nav input_unit_container form-group">
-				<label for="vertexPropertyName" > Vertex Property: </label>
-				<input type="text" name="vertexPropertyName_1" id="vertexPropertyName_1" class="form-control" placeholder="Enter Comma Seperated Property Name (e.g. name,age)">
-			</div>
-			<div class="nav input_unit_container form-group">
-				<label for="vertexPropertyValue" > Property Value: </label>
-				<input type="text" name="vertexPropertyValue_1" id="vertexPropertyValue_1" class="form-control" placeholder="Enter Comma Seperated Property Value (e.g. Sandeep,25)">
-			</div>
-			<button class="btn btn-default btn-block" onclick="editVertex()"> Edit Vertex </button>
-		</div><div class="nav input_unit_container", id="addEditEdgeForm" style="display:none;">
-			<h2>Add / Edit Edge :</h2>
-			<div class="nav input_unit_container form-group">
+			<div class="nav input_unit_container", id="addEditEdgeForm" style="display:none;">
+				<h2>Add / Edit Edge :</h2>
+				<div class="nav input_unit_container form-group">
 
-				<label for="edgeLabel" > Edge Label: </label>
-				<input type="text" name="edgeLabel" id="edgeLabel"  class="form-control" placeholder="Enter Edge Label">
-			</div>
-			<div class="nav input_unit_container form-group">
+					<label for="edgeLabel" > Edge Label: </label>
+					<input type="text" name="edgeLabel" id="edgeLabel"  class="form-control" placeholder="Enter Edge Label">
+				</div>
+				<div class="nav input_unit_container form-group">
 
-				<label for="sourceVertexId"> Source Vertex ID: </label>
-				<input type="text" name="sourceVertexId" id="sourceVertexId" class="form-control"  placeholder="Enter Source Vertex ID">
-			</div>
-			<div class="nav input_unit_container form-group">
+					<label for="sourceVertexId"> Source Vertex ID: </label>
+					<input type="text" name="sourceVertexId" id="sourceVertexId" class="form-control"  placeholder="Enter Source Vertex ID">
+				</div>
+				<div class="nav input_unit_container form-group">
 
-				<label for="targetVertexId"> Target Vertex ID: </label>
-				<input type="text" name="targetVertexId" id="targetVertexId" class="form-control"  placeholder="Enter Target Vertex ID">
-			</div>
-			<div class="nav input_unit_container form-group">
+					<label for="targetVertexId"> Target Vertex ID: </label>
+					<input type="text" name="targetVertexId" id="targetVertexId" class="form-control"  placeholder="Enter Target Vertex ID">
+				</div>
+				<div class="nav input_unit_container form-group">
 
-				<label for="edgePropertyName"> Property Name: </label>
-				<input type="text" name="edgePropertyName" id="edgePropertyName" class="form-control"  placeholder="Enter Comma Seperated Property Name">
-			</div>
-			<div class="nav input_unit_container form-group">
+					<label for="edgePropertyName"> Property Name: </label>
+					<input type="text" name="edgePropertyName" id="edgePropertyName" class="form-control"  placeholder="Enter Comma Seperated Property Name">
+				</div>
+				<div class="nav input_unit_container form-group">
 
-				<label for="edgePropertyValue"> Property Value: </label>
-				<input type="text" name="edgePropertyValue" id="edgePropertyValue" class="form-control"  placeholder="Enter Comma Seperated Property Value">
+					<label for="edgePropertyValue"> Property Value: </label>
+					<input type="text" name="edgePropertyValue" id="edgePropertyValue" class="form-control"  placeholder="Enter Comma Seperated Property Value">
+				</div>
+				<button  class="btn btn-default btn-block" onclick="addEditEdge()"> Add/Edit Edge </button>
 			</div>
-			<button  class="btn btn-default btn-block" onclick="addEditEdge()"> Add/Edit Edge </button>
-		</div></div>
+		</div> -->
 		<div class="aside left_bar" style="pointer-events:auto;">
 			<div  id="graphInfoBar" style="pointer-events:auto;">
 				<button name="graphInfo" class="btn btn-default btn-lg" onclick="get_graph_info();">Get graph info</button>
@@ -209,7 +213,117 @@
 			<div id="nodeInfo" style="pointer-events:none;">
 			</div>
 		</div>
+	</div>
 
+	<div class="modal fade" id="addEditEdgeModal" role="dialog">
+		<div class="modal-dialog">
+			<!-- Modal content-->
+			<div class="modal-content">
+				<div class="modal-header">
+					<h4 class="modal-title">Add / Edit Edge :</h4>
+				</div>
+				<div class="modal-body">
+					<div class="footer">
+						<div class="container">
+							<div class="nav input_unit_container form-group">
+								<label for="edgeLabel" > Edge Label: </label>
+								<input type="text" name="edgeLabel" id="edgeLabel"  class="form-control" placeholder="Enter Edge Label">
+							</div>
+							<div class="nav input_unit_container form-group">
+
+								<label for="sourceVertexId"> Source Vertex ID: </label>
+								<input type="text" name="sourceVertexId" id="sourceVertexId" class="form-control"  placeholder="Enter Source Vertex ID">
+							</div>
+							<div class="nav input_unit_container form-group">
+
+								<label for="targetVertexId"> Target Vertex ID: </label>
+								<input type="text" name="targetVertexId" id="targetVertexId" class="form-control"  placeholder="Enter Target Vertex ID">
+							</div>
+							<div class="nav input_unit_container form-group">
+
+								<label for="edgePropertyName"> Property Name: </label>
+								<input type="text" name="edgePropertyName" id="edgePropertyName" class="form-control"  placeholder="Enter Comma Seperated Property Name">
+							</div>
+							<div class="nav input_unit_container form-group">
+
+								<label for="edgePropertyValue"> Property Value: </label>
+								<input type="text" name="edgePropertyValue" id="edgePropertyValue" class="form-control"  placeholder="Enter Comma Seperated Property Value">
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button class="btn btn-default btn-block" onclick="addEditEdge()" data-dismiss="modal"> Add/Edit Edge  </button>
+					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="modal fade" id="editVertexModal" role="dialog">
+		<div class="modal-dialog">
+			<!-- Modal content-->
+			<div class="modal-content">
+				<div class="modal-header">
+					<h4 class="modal-title">Edit Vertex :</h4>
+				</div>
+				<div class="modal-body">
+					<div class="footer">
+						<div class="container">
+							<div class="nav input_unit_container form-group">
+								<label for="vertexId" > Vertex ID: </label>
+								<input type="text" name="vertexId" id="vertexId" class="form-control" size="45"  placeholder="Enter Vertex ID (e.g. 123)">
+							</div>
+							<div class="nav input_unit_container form-group">
+								<label for="vertexPropertyName" > Vertex Property: </label>
+								<input type="text" name="vertexPropertyName_1" id="vertexPropertyName_1" class="form-control" placeholder="Enter Comma Seperated Property Name (e.g. name,age)">
+							</div>
+							<div class="nav input_unit_container form-group">
+								<label for="vertexPropertyValue" > Property Value: </label>
+								<input type="text" name="vertexPropertyValue_1" id="vertexPropertyValue_1" class="form-control" placeholder="Enter Comma Seperated Property Value (e.g. Sandeep,25)">
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button class="btn btn-default btn-block" onclick="editVertex()" data-dismiss="modal"> Edit Vertex </button>
+					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="modal fade" id="addVertexModal" role="dialog">
+		<div class="modal-dialog">
+			<!-- Modal content-->
+			<div class="modal-content">
+				<div class="modal-header">
+					<h4 class="modal-title">Add Vertex :</h4>
+				</div>
+				<div class="modal-body">
+					<div class="footer">
+						<div class="container">
+							<div class="nav input_unit_container form-group">
+								<label for="vertexLabel">Vertex Label: </label>
+								<input type="text" name="vertexLabel" id="vertexLabel" class="form-control" placeholder="Enter Vertex Label">
+							</div>
+							<div class="nav input_unit_container form-group">
+								<label for="vertexPropertyName">Vertex Property:</label>
+								<input type="text" name="vertexPropertyName" class="form-control" id="vertexPropertyName" placeholder="Enter Comma Seperated Property Name (e.g. name,age,gender)"  size="45">
+							</div>
+							<div class="nav input_unit_container form-group">
+								<label for="vertexPropertyValue">Property Value:</label>
+								<input type="text" name="vertexPropertyValue" class="form-control" id="vertexPropertyValue"  placeholder="Enter Comma Seperated Property Value (e.g. Sandeep,27,male)">
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button class="btn btn-default btn-block" onclick="addVertex()" data-dismiss="modal"> Add Vertex </button>
+					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+				</div>
+			</div>
+		</div>
 	</div>
 
 	<!-- Modal -->
