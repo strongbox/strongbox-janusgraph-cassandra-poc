@@ -37,47 +37,47 @@
 	</head>
 <body style="overflow: hidden;">
 <div class="pos-f-t">
-	<div class="collapse" id="navbarToggleExternalContent">
-		<nav class="navbar navbar-dark bg-dark" style="color:white;">
-			<div class="form-inline my-2 my-lg-0" style="color:white;">
-				<div class="nav input_unit_container form-group">
-					<label for="label_field">Node label :</label>
-					<input type="text" class="form-control"  name="label_field" id="label_field" placeholder="Node label" value="" />
-				</div>
-				<div class="nav input_unit_container form-group">
-					<label for="search_field">Node property:</label>
-					<input name="search_field" class="form-control"  id="search_field" value="" />
-				</div>
-				<div class="nav input_unit_container form-group">
-					<label class="nav input_label" for="search_value">Property value:</label>
-					<input name="search_value" class="form-control"  id="search_value" value="" />
-				</div>
-				<div class="nav input_unit_container form-group">
-					<label for="search_type">Type of search:</label>
-					<select class="form-control form-control-lg" name="search_type" id="search_type">
-						<option value="eq">Equals</option>
-						<option value="contains">Contains</option>
-					</select>
-				</div>
-				<div class="nav input_unit_container form-group">
-					<label for="limit_field">Results limit:</label>
-					<input name="limit_field" class="form-control"  id="limit_field" value="50" min="1" max="1000" type="number"/>
-				</div>
-				<div class="nav input_unit_container form-group">
-					<label class="nav input_label" for="edge_filter">Traverse by edge:</label>
-					<input name="edge_filter" class="form-control"  id="edge_filter" value="" />
-				</div>
-				<div class="nav input_unit_container form-group">
-					<label class="nav input_label" for="nbLayers">Nb of layers</label>
-					<input type="number" class="form-control"  id="nbLayers" min="1" max="128" onclick="set_nb_layers()">
-				</div>
+	<!-- <div class="collapse" id="navbarToggleExternalContent">
+    <nav class="navbar navbar-dark bg-dark navbar-fixed-top navbar-static-top" style="color:white;">
+      <div class="form-inline my-2 my-lg-0" style="color:white;">
+        <div class="nav input_unit_container form-group">
+          <label for="label_field">Node label :</label>
+          <input type="text" class="form-control"  name="label_field" id="label_field" placeholder="Node label" value="" />
+        </div>
+        <div class="nav input_unit_container form-group">
+          <label for="search_field">Node property:</label>
+          <input name="search_field" class="form-control"  id="search_field" value="" />
+        </div>
+        <div class="nav input_unit_container form-group">
+          <label class="nav input_label" for="search_value">Property value:</label>
+          <input name="search_value" class="form-control"  id="search_value" value="" />
+        </div>
+        <div class="nav input_unit_container form-group">
+          <label for="search_type">Type of search:</label>
+          <select class="form-control form-control-lg" name="search_type" id="search_type">
+            <option value="eq">Equals</option>
+            <option value="contains">Contains</option>
+          </select>
+        </div>
+        <div class="nav input_unit_container form-group">
+          <label for="limit_field">Results limit:</label>
+          <input name="limit_field" class="form-control"  id="limit_field" value="50" min="1" max="1000" type="number"/>
+        </div>
+        <div class="nav input_unit_container form-group">
+          <label class="nav input_label" for="edge_filter">Traverse by edge:</label>
+          <input name="edge_filter" class="form-control"  id="edge_filter" value="" />
+        </div>
+        <div class="nav input_unit_container form-group">
+          <label class="nav input_label" for="nbLayers">Nb of layers</label>
+          <input type="number" class="form-control"  id="nbLayers" min="1" max="128" onclick="set_nb_layers()">
+        </div>
 
-			</div>
-		</nav>
-	</div>
+      </div>
+    </nav>
+  </div> -->
 
 	<div class="collapse" id="navbarToggleCustomQueryContent">
-		<nav class="navbar navbar-dark bg-dark" style="color:white;">
+		<nav class="navbar navbar-dark bg-dark navbar-fixed-top navbar-static-top" style="color:white;">
 			<div class="form-inline my-2 my-lg-0" style="color:white;">
 				<div class="nav input_unit_container form-group">
 					<label for="custom_query_field">Gremlin Query :</label>
@@ -87,9 +87,9 @@
 	</div>
 
 	<nav class="navbar navbar-dark bg-dark">
-		<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggleExternalContent" aria-controls="navbarToggleExternalContent" aria-expanded="false" aria-label="Toggle navigation" >
-			<span class="navbar-toggler-icon"></span><span style="color: white;"> Form Queries</span>
-		</button>
+		<!-- <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggleExternalContent" aria-controls="navbarToggleExternalContent" aria-expanded="false" aria-label="Toggle navigation" >
+      <span class="navbar-toggler-icon"></span><span style="color: white;"> Form Queries</span>
+    </button> -->
 		<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggleCustomQueryContent" aria-controls="navbarToggleCustomQueryContent" aria-expanded="false" aria-label="Toggle navigation">
 			<span class="navbar-toggler-icon"></span><span style="color: white;"> Custom Queries</span>
 		</button>
@@ -264,7 +264,7 @@
 				if(host){
 					$('#server_address').val(host);
 				}
-				init_property_bar();
+				// init_property_bar();
 			// Create the graph canvas in the chosen div element
 			graph_viz.init("#main");
 			// Add the zoom layer to the graph
@@ -279,9 +279,9 @@
 			//graph_viz.graph_events.test();
 
 
-			function init_property_bar(){
-				document.getElementById('nbLayers').value = default_nb_of_layers;
-			}
+			// function init_property_bar(){
+			// 	document.getElementById('nbLayers').value = default_nb_of_layers;
+			// }
 
 			function change_nav_bar(node_data,edge_data){
 				var nav_bar = d3.select("#prop_choice");
@@ -430,13 +430,13 @@
 	}
 
 
-	function set_nb_layers(){
-		var nb_layers = parseInt(document.getElementById('nbLayers').value);
-		//var nb_layers = parseInt(layer_input.getAttribute("value"));
-		console.log(nb_layers)
-		graph_viz.layers.set_nb_layers(nb_layers);
+	// function set_nb_layers(){
+	// 	var nb_layers = parseInt(document.getElementById('nbLayers').value);
+	// 	//var nb_layers = parseInt(layer_input.getAttribute("value"));
+	// 	console.log(nb_layers)
+	// 	graph_viz.layers.set_nb_layers(nb_layers);
 
-	}
+	// }
 
 	function show_hide_element(element_label){
 		element = d3.select(element_label);
