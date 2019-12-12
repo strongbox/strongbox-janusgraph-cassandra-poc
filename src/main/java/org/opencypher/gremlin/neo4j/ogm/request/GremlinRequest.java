@@ -133,12 +133,13 @@ public class GremlinRequest implements Request
         String cypherStatement = query.getStatement();
         logger.debug("Cypher: {} with params {}", cypherStatement, parameterMap);
 
-        cypherStatement = inlineParameters(cypherStatement, parameterMap);
-        cypherStatement = normalizeNeo4jMergeStatement(cypherStatement, parameterMap);
-        cypherStatement = CypherQueryUtils.normalizeMatchByIdWithRelationResult(cypherStatement,
-                                                                                Optional.ofNullable(parameterMap.get("id"))
-                                                                                        .map(id -> id.toString())
-                                                                                        .orElse(null));
+        cypherStatement = Optional.of(Pair.of(cypherStatement, parameterMap))
+                                  .map(this::inlineParameters)
+                                  .map(this::normalizeMergeByIdWithParams)
+                                  .map(this::normalizeMatchByIdWithRelationResult)
+                                  .map(Pair::getLeft)
+                                  .get();
+        
         logger.debug("Cypher(normalized): {}", cypherStatement);
         
         CypherAst ast = CypherAst.parse(cypherStatement, parameterMap);
@@ -151,130 +152,44 @@ public class GremlinRequest implements Request
         return statementRunner.run(cypherStatement, parameterMap);
     }
 
-    protected String inlineParameters(String cypherStatement,
-                                      Map<String, Object> parameterMap)
+    protected Pair<String, Map<String, Object>> normalizeMatchByIdWithRelationResult(Pair<String, Map<String, Object>> cyphterWithParams)
     {
-        String placeholderFormat;
-        Map<String, Object> params;
-        Collection<Map<String, Object>> rows = (Collection<Map<String, Object>>) parameterMap.get("rows");        
-        if (rows == null || rows.size() == 0)
-        {
-            //regular case
-            placeholderFormat = "$%s";
-            params = parameterMap;
-        }
-        else
-        {
-            //the case with `UNWIND {rows} as row ...`
-            placeholderFormat = "row.%s";
-            params = rows.iterator().next();
-        }
-
-        List<Pair<String, Object>> props = params.entrySet()
-                                                 .stream()
-                                                 .flatMap(GremlinRequest::flatten)
-                                                 .collect(Collectors.toList());
-
-        for (Pair<String, Object> p : props)
-        {
-            cypherStatement = cypherStatement.replace(String.format(placeholderFormat, p.getKey()),
-                                                      inlinedValue(p.getValue()));
-        }
-
-        return cypherStatement;
+        return Optional.of(cyphterWithParams)
+                       .map(p -> p.getRight())
+                       .map(p -> p.get("id"))
+                       .map(id -> id.toString())
+                       .map(id -> CypherQueryUtils.normalizeMatchByIdWithRelationResult(cyphterWithParams.getLeft(),
+                                                                                        id))
+                       .map(s -> Pair.of(s, cyphterWithParams.getRight()))
+                       .orElse(cyphterWithParams);
     }
 
-    protected String inlinedValue(Object value)
+    protected Pair<String, Map<String, Object>> normalizeMergeByIdWithParams(Pair<String, Map<String, Object>> cyphterWithParams)
     {
-        if (value instanceof Number) {
-            return value.toString();
-        }
+        return Optional.of(cyphterWithParams)
+                       .map(p -> p.getRight())
+                       .map(p -> p.get("rows"))
+                       .filter(r -> r instanceof Collection)
+                       .map(r -> (Collection<Object>) r)
+                       .map(r -> r.iterator().next())
+                       .map(r -> (Map<String, Object>) r)
+                       .map(r -> r.get("props"))
+                       .filter(p -> p instanceof Map)
+                       .map(p -> (Map<String, Object>) p)
+                       .map(p -> CypherQueryUtils.normalizeMergeByIdWithParams(cyphterWithParams.getLeft(), p))
+                       .map(s -> Pair.of(s, cyphterWithParams.getRight()))
+                       .orElse(cyphterWithParams);
+    }
 
-        if (value == null) {
-            throw new IllegalArgumentException("Null values not supported.");
-        }
-        
-        return "'" + value.toString() + "'";
+    protected Pair<String, Map<String, Object>> inlineParameters(Pair<String, Map<String, Object>> cyphterWithParams)
+    {
+        return Optional.of(cyphterWithParams.getRight())
+                       .filter(p -> !p.isEmpty())
+                       .map(p -> CypherQueryUtils.inlineParameters(cyphterWithParams.getLeft(), p))
+                       .map(s -> Pair.of(s, cyphterWithParams.getRight()))
+                       .orElse(cyphterWithParams);
     }
     
-    private static Stream<Pair<String, Object>> flatten(Map.Entry<String, Object> root)
-    {
-        if (root.getValue() instanceof Map<?, ?>)
-        {
-            return ((Map<String, Object>) root.getValue()).entrySet()
-                                                          .stream()
-                                                          .map(e -> Pair.of(root.getKey() + "." + e.getKey(),
-                                                                            e.getValue()))
-                                                          .flatMap(GremlinRequest::flatten);
-        }
-        return Stream.of(Pair.of(root.getKey(), root.getValue()));
-    }
-    
-    protected String normalizeNeo4jMergeStatement(String cypherStatement,
-                                                  Map<String, Object> parameterMap)
-    {
-        if (!cypherStatement.contains("MERGE")) {
-            return cypherStatement;
-        }
-        
-        //cleanup multiple labels for DomainEntity inheritance
-        //TODO: make it generic
-        cypherStatement = cypherStatement.replace(String.format(":`%s`", DomainEntity.class.getSimpleName()), "");
-        //cleanup quotes
-        cypherStatement = cypherStatement.replaceAll("`", "");
-        
-        int mergeIndex = cypherStatement.indexOf("MERGE");
-        int setIndex = cypherStatement.indexOf("SET");
-        int returnIndex = cypherStatement.indexOf("RETURN");
-        
-        if (mergeIndex >= setIndex || setIndex >= returnIndex) {
-            //not a MERGE statement
-            return cypherStatement; 
-        }
-        
-        String mergeClause = cypherStatement.substring(mergeIndex, setIndex);
-        String setClause = cypherStatement.substring(setIndex, returnIndex);
-
-        String alias;
-        if (mergeClause.contains("n:"))
-        {
-            alias = "n";
-        }
-        else if (mergeClause.contains("rel:"))
-        {
-            alias = "rel";
-        }
-        else
-        {
-            throw new IllegalArgumentException(String.format("Failet to parse node alias from [%s].", mergeClause));
-        }
-                      
-        //`UNWIND {rows} as row` 
-        Collection<Map<String, Object>> rows = (Collection<Map<String, Object>>) parameterMap.get("rows");
-        if (rows == null || rows.size() == 0)
-        {
-            return cypherStatement;
-        }
-
-        Map<String, Object> row = rows.iterator().next();
-        Map<String, Object> props = (Map<String, Object>) row.get("props");
-        if (props == null || props.size() == 0)
-        {
-            throw new IllegalArgumentException("Emplpy `SET` not supported.");
-        }
-       
-        //specify concrete properties to set
-        String propsClause = props.keySet()
-                                  .stream()
-                                  .map(p -> String.format("%s.%s = row.props.%s", alias, p, p))
-                                  .reduce((p1,
-                                           p2) -> p1 + "," + p2)
-                                  .get();
-        
-        cypherStatement = cypherStatement.replace(setClause, "SET " + propsClause + " ");
-        return cypherStatement.replace("row.props.uuid", "'" + props.get("uuid").toString() + "'");
-    }
-
     private static class MultiStatementBasedResponse implements Response<RowModel>
     {
         // This implementation is not good, but it preserved the current
