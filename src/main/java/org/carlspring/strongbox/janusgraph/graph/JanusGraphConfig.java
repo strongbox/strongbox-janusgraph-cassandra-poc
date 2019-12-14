@@ -1,17 +1,14 @@
 package org.carlspring.strongbox.janusgraph.graph;
 
-import org.apache.cassandra.service.CassandraDaemon;
-import org.carlspring.strongbox.janusgraph.cassandra.CassandraEmbeddedProperties;
-
 import java.lang.reflect.Field;
 
+import org.apache.cassandra.service.CassandraDaemon;
+import org.carlspring.strongbox.janusgraph.cassandra.CassandraEmbeddedProperties;
 import org.janusgraph.core.JanusGraph;
 import org.janusgraph.core.JanusGraphFactory;
-import org.janusgraph.graphdb.database.StandardJanusGraph;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.DependsOn;
 
 /**
  * @author Przemyslaw Fusik

@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.janusgraph.graph.schema;
+package org.carlspring.strongbox.janusgraph.schema;
 
 import java.util.HashSet;
 import java.util.Optional;

@@ -2,7 +2,7 @@ package org.carlspring.strongbox.janusgraph.app;
 
 import org.carlspring.strongbox.janusgraph.cassandra.CassandraEmbeddedConfig;
 import org.carlspring.strongbox.janusgraph.graph.JanusGraphConfig;
-import org.carlspring.strongbox.janusgraph.graph.gremlin.server.GremlinServerConfig;
+import org.carlspring.strongbox.janusgraph.gremlin.server.GremlinServerConfig;
 import org.carlspring.strongbox.janusgraph.repositories.RepositoriesConfig;
 import org.carlspring.strongbox.janusgraph.rest.controllers.ControllersConfig;
 import org.springframework.boot.SpringApplication;
