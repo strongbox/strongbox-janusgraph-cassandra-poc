@@ -5,22 +5,22 @@ import java.util.function.Supplier;
 import javax.inject.Inject;
 
 import org.apache.tinkerpop.gremlin.structure.Vertex;
-import org.carlspring.strongbox.janusgraph.domain.ArtifactCoordinatesEntity;
+import org.carlspring.strongbox.janusgraph.domain.ArtifactEntity;
 import org.carlspring.strongbox.janusgraph.gremlin.dsl.EntityTraversal;
 import org.carlspring.strongbox.janusgraph.gremlin.dsl.EntityTraversalSource;
-import org.carlspring.strongbox.janusgraph.gremlin.repositories.adapters.ArtifactCoordinatesAdapter;
+import org.carlspring.strongbox.janusgraph.gremlin.repositories.adapters.ArtifactAdapter;
 import org.carlspring.strongbox.janusgraph.gremlin.repositories.adapters.EntityTraversalAdapter;
 import org.springframework.stereotype.Repository;
 
-@Repository("gremlinArtifactCoordinatesRepository")
-public class ArtifactCoordinatesRepository extends GremlinVertexReposiotry<ArtifactCoordinatesEntity>
+@Repository("gremlinArtifactRepository")
+public class ArtifactRepository extends GremlinVertexReposiotry<ArtifactEntity>
 {
 
     @Inject
-    private ArtifactCoordinatesAdapter adapter;
+    private ArtifactAdapter adapter;
 
     @Override
-    protected EntityTraversalAdapter<Vertex, ArtifactCoordinatesEntity> adapter()
+    protected EntityTraversalAdapter<Vertex, ArtifactEntity> adapter()
     {
         return adapter;
     }

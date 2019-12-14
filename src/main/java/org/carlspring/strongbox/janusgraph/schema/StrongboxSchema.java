@@ -148,7 +148,7 @@ public class StrongboxSchema
         makePropertyKeyIfDoesNotExist(jgm, "repositoryId", String.class);
         makePropertyKeyIfDoesNotExist(jgm, "sizeInBytes", Long.class);
         makePropertyKeyIfDoesNotExist(jgm, "created", String.class);
-        makePropertyKeyIfDoesNotExist(jgm, "tags", String[].class, Cardinality.SET);
+        makePropertyKeyIfDoesNotExist(jgm, "tags", String.class, Cardinality.SET);
 
         makePropertyKeyIfDoesNotExist(jgm, "path", String.class);
         makePropertyKeyIfDoesNotExist(jgm, "version", String.class);
