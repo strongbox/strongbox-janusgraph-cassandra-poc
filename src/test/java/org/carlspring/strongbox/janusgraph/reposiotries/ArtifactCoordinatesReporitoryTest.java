@@ -13,6 +13,8 @@ import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.carlspring.strongbox.janusgraph.app.Application;
 import org.carlspring.strongbox.janusgraph.domain.ArtifactCoordinates;
 import org.carlspring.strongbox.janusgraph.domain.ArtifactCoordinatesEntity;
+import org.carlspring.strongbox.janusgraph.gremlin.dsl.EntityTraversalSource;
+import org.carlspring.strongbox.janusgraph.gremlin.projections.ArtifactCoordinatesProjection;
 import org.carlspring.strongbox.janusgraph.repositories.ArtifactCoordinatesRepository;
 import org.janusgraph.core.JanusGraph;
 import org.janusgraph.core.JanusGraphTransaction;
@@ -38,10 +40,13 @@ public class ArtifactCoordinatesReporitoryTest
     @Inject
     private ArtifactCoordinatesRepository artifactCoordinatesRepository; 
     
+    @Inject
+    private org.carlspring.strongbox.janusgraph.gremlin.repositories.ArtifactCoordinatesRepository gremlinArtifactCoordinatesRepository;
+    
     @Test
     public void queriesShouldWork()
     {
-        createArtifactCoordinatesVertex();
+        String uuid = createArtifactCoordinatesVertex();
         
         Driver driver = GremlinDatabase.driver(janusGraph.traversal());
         
@@ -62,43 +67,48 @@ public class ArtifactCoordinatesReporitoryTest
         System.out.println(vertex2);
     }
 
-    protected Vertex createArtifactCoordinatesVertex()
+    protected String createArtifactCoordinatesVertex()
     {
-        Vertex artifactCoordinatesVertex;
+        String uuid = UUID.randomUUID().toString();
         try (JanusGraphTransaction tx = janusGraph.newTransaction())
         {
             
             GraphTraversalSource g = tx.traversal();
             
-            artifactCoordinatesVertex = g.addV(ArtifactCoordinates.LABEL)
-                                         .property("uuid", UUID.randomUUID().toString())
+            g.addV(ArtifactCoordinates.LABEL)
+                                         .property("uuid", uuid)
                                          .property("path", "org/carlspring/test-artifact.jar")
                                          .property("version", "1.2.3")
                                          .next();
             tx.commit();
         }
         
-        return artifactCoordinatesVertex;
+        return uuid;
     }
 
     @Test
     public void crudShouldWork() {
+        String uuid = UUID.randomUUID().toString();
+        
         ArtifactCoordinatesEntity artifactCoordinates = new ArtifactCoordinatesEntity();
         artifactCoordinates.setPath("org/carlspring/test-artifact-1.0.0.jar");
-        artifactCoordinates.setUuid(UUID.randomUUID().toString());
+        artifactCoordinates.setUuid(uuid);
         artifactCoordinates.setVersion("1.0.0");
         
         ArtifactCoordinatesEntity artifactCoordinatesSaved = artifactCoordinatesRepository.save(artifactCoordinates);
         assertEquals(artifactCoordinates.getUuid(), artifactCoordinatesSaved.getUuid());
         
         artifactCoordinates.setPath("org/carlspring/test-artifact-2.0.0.jar");
-        artifactCoordinates.setUuid(UUID.randomUUID().toString());
+        artifactCoordinates.setUuid(uuid);
         artifactCoordinates.setVersion("2.0.0");
         artifactCoordinatesSaved = artifactCoordinatesRepository.save(artifactCoordinates);
         assertEquals(artifactCoordinates.getUuid(), artifactCoordinatesSaved.getUuid());        
         
         ArtifactCoordinatesEntity result = artifactCoordinatesRepository.findByPath("org/carlspring/test-artifact-1.0.0.jar");
         assertEquals("org/carlspring/test-artifact-1.0.0.jar", result.getPath());
+        
+        artifactCoordinates = gremlinArtifactCoordinatesRepository.findById(uuid);
+        assertEquals(uuid, artifactCoordinates.getUuid());
     }
     
 }

@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.janusgraph.graph.gremlin.server;
+package org.carlspring.strongbox.janusgraph.gremlin.server;
 
 import java.io.InputStream;
 
