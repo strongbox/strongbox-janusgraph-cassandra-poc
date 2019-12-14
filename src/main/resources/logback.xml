@@ -5,9 +5,12 @@
             <pattern>%d{HH:mm:ss.SSS dd-MM-yyyy} | %-5.5p | %-20.20t | %-50.50logger{50} | %m%n</pattern>
         </encoder>
     </appender>
+    
     <logger name="com.datastax.driver.core" level="WARN" />
     <logger name="org.apache.tinkerpop.gremlin.groovy.engine" level="DEBUG" />
     <logger name="org.opencypher.gremlin.neo4j" level="DEBUG" />
+    <logger name="org.carlspring" level="DEBUG" />
+    
     <root level="INFO">
         <appender-ref ref="CONSOLE" />
     </root>

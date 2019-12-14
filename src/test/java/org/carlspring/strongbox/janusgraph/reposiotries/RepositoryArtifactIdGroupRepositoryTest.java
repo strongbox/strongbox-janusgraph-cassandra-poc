@@ -27,7 +27,7 @@ import org.carlspring.strongbox.janusgraph.domain.Edges;
 import org.carlspring.strongbox.janusgraph.domain.RepositoryArtifactIdGroup;
 import org.carlspring.strongbox.janusgraph.domain.RepositoryArtifactIdGroupEntity;
 import org.carlspring.strongbox.janusgraph.repositories.ArtifactCoordinatesRepository;
-import org.carlspring.strongbox.janusgraph.repositories.ArtifactEntryRepository;
+import org.carlspring.strongbox.janusgraph.repositories.ArtifactRepository;
 import org.carlspring.strongbox.janusgraph.repositories.RepositoryArtifactIdGroupRepository;
 import org.janusgraph.core.JanusGraph;
 import org.junit.jupiter.api.Test;
@@ -45,7 +45,7 @@ public class RepositoryArtifactIdGroupRepositoryTest
     private RepositoryArtifactIdGroupRepository repositoryArtifactIdGroupRepository;
 
     @Inject
-    private ArtifactEntryRepository artifactEntryRepository;
+    private ArtifactRepository artifactEntryRepository;
     
     @Inject
     private ArtifactCoordinatesRepository artifactCoordinatesRepository;

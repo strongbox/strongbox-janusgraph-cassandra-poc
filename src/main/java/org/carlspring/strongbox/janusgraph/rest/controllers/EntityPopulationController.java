@@ -8,7 +8,7 @@ import javax.inject.Inject;
 import org.apache.commons.lang3.RandomUtils;
 import org.carlspring.strongbox.janusgraph.domain.ArtifactDependency;
 import org.carlspring.strongbox.janusgraph.domain.ArtifactEntity;
-import org.carlspring.strongbox.janusgraph.repositories.ArtifactEntryRepository;
+import org.carlspring.strongbox.janusgraph.repositories.ArtifactRepository;
 import org.carlspring.strongbox.janusgraph.rest.request.EntityPopulationRequest;
 import org.carlspring.strongbox.janusgraph.util.EntityGeneratorUtil;
 import org.neo4j.ogm.session.Session;
@@ -29,7 +29,7 @@ public class EntityPopulationController
     private static final Logger LOGGER = LoggerFactory.getLogger(EntityPopulationController.class);
 
     @Inject
-    private ArtifactEntryRepository artifactEntryRepository;
+    private ArtifactRepository artifactEntryRepository;
     @Inject
     private SessionFactory sessionFactory;
 

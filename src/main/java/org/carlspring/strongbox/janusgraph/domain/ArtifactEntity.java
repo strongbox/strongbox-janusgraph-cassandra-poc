@@ -1,5 +1,7 @@
 package org.carlspring.strongbox.janusgraph.domain;
 
+import static org.carlspring.strongbox.janusgraph.gremlin.repositories.adapters.EntityTraversalUtils.DATE_FORMAT;
+
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -11,11 +13,10 @@ import org.neo4j.ogm.annotation.typeconversion.DateString;
 @NodeEntity(Artifact.LABEL)
 public class ArtifactEntity extends DomainEntity implements Artifact
 {
-
     private String storageId;
     private String repositoryId;
     private Long sizeInBytes;
-    @DateString("yyyy-MM-dd HH:mm:ss.SSSXXX")
+    @DateString(DATE_FORMAT)
     private Date created;
     private Set<String> tags = new HashSet<>();
     @Relationship(type = Edges.ARTIFACT_ARTIFACTCOORDINATES, direction = Relationship.OUTGOING)

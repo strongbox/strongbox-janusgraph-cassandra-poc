@@ -8,7 +8,7 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface ArtifactEntryRepository extends CrudRepository<ArtifactEntity, String>
+public interface ArtifactRepository extends CrudRepository<ArtifactEntity, String>
 {
 
     @Query("MATCH (ac:`ArtifactCoordinates`)<-[aeac:`Artifact_ArtifactCoordinates`]-(ae:`Artifact`) WHERE ac.path=$path RETURN ae, aeac, ac")

@@ -1,8 +1,9 @@
 package org.carlspring.strongbox.janusgraph.reposiotries;
 
 import static org.apache.tinkerpop.gremlin.process.traversal.P.eq;
-import static org.apache.tinkerpop.gremlin.process.traversal.P.neq;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -10,6 +11,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -28,7 +30,7 @@ import org.carlspring.strongbox.janusgraph.domain.ArtifactDependencyEntity;
 import org.carlspring.strongbox.janusgraph.domain.ArtifactEntity;
 import org.carlspring.strongbox.janusgraph.domain.Edges;
 import org.carlspring.strongbox.janusgraph.repositories.ArtifactCoordinatesRepository;
-import org.carlspring.strongbox.janusgraph.repositories.ArtifactEntryRepository;
+import org.carlspring.strongbox.janusgraph.repositories.ArtifactRepository;
 import org.janusgraph.core.JanusGraph;
 import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.session.SessionFactory;
@@ -43,8 +45,11 @@ public class ArtifactEntryRepositoryTest
     private static final Logger logger = LoggerFactory.getLogger(ArtifactEntryRepositoryTest.class);
 
     @Inject
-    private ArtifactEntryRepository artifactEntryRepository;
+    private ArtifactRepository artifactEntryRepository;
 
+    @Inject
+    private ArtifactRepository gremlinArtifactEntityRepository;
+    
     @Inject
     private ArtifactCoordinatesRepository artifactCoordinatesRepository;
 
@@ -167,6 +172,7 @@ public class ArtifactEntryRepositoryTest
         // ArtifactEntry->ArtifactDependency/
         // .............\
         // ..............>ArtifactDependency->ArtifactCoordinates
+        String ae1Uuid = UUID.randomUUID().toString();
         g.addV(ArtifactCoordinates.LABEL)
          .property("uuid", UUID.randomUUID().toString())
          .property("path",
@@ -175,7 +181,7 @@ public class ArtifactEntryRepositoryTest
                    "777")
          .as("adc1")
          .addV(Artifact.LABEL)
-         .property("uuid", UUID.randomUUID().toString())
+         .property("uuid", ae1Uuid)
          .property("storageId", "storage0")
          .property("repositoryId", "releases")
          .as("ae1")
@@ -205,6 +211,11 @@ public class ArtifactEntryRepositoryTest
         ArtifactCoordinatesEntity adc1 = artifactCoordinatesRepository.findByPath("org/carlspring/test/dependency.jar");
         List<ArtifactEntity> dependencies = artifactEntryRepository.findAllDependentArtifactEntries(adc1.getUuid());
         assertEquals(2, dependencies.size());
+        
+        Optional<ArtifactEntity> artifactEntrySaved = gremlinArtifactEntityRepository.findById(ae1Uuid);
+        assertNotEquals(Optional.empty(), artifactEntrySaved);
+        assertEquals(artifactEntrySaved.get().getUuid(), ae1Uuid);
+        assertNull(artifactEntrySaved.get().getArtifactCoordinates());
     }
 
 }

@@ -4,12 +4,12 @@ import static org.apache.tinkerpop.gremlin.process.traversal.P.eq;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 import javax.inject.Inject;
 
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
-import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.carlspring.strongbox.janusgraph.app.Application;
 import org.carlspring.strongbox.janusgraph.domain.ArtifactCoordinates;
 import org.carlspring.strongbox.janusgraph.domain.ArtifactCoordinatesEntity;
@@ -106,9 +106,6 @@ public class ArtifactCoordinatesReporitoryTest
         
         ArtifactCoordinatesEntity result = artifactCoordinatesRepository.findByPath("org/carlspring/test-artifact-1.0.0.jar");
         assertEquals("org/carlspring/test-artifact-1.0.0.jar", result.getPath());
-        
-        artifactCoordinates = gremlinArtifactCoordinatesRepository.findById(uuid);
-        assertEquals(uuid, artifactCoordinates.getUuid());
     }
     
 }
