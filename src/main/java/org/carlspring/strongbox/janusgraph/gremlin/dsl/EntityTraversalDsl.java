@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.janusgraph.gremlin.dsl;
 
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -9,11 +10,16 @@ import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversal;
 import org.apache.tinkerpop.gremlin.structure.Edge;
 import org.apache.tinkerpop.gremlin.structure.Element;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
-import org.carlspring.strongbox.janusgraph.domain.DomainObject;
 import org.carlspring.strongbox.janusgraph.domain.Edges;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * @author sbespalov
+ *
+ * @param <S>
+ * @param <E>
+ */
 @GremlinDsl
 public interface EntityTraversalDsl<S, E> extends GraphTraversal.Admin<S, E>
 {
@@ -22,23 +28,23 @@ public interface EntityTraversalDsl<S, E> extends GraphTraversal.Admin<S, E>
 
     String NULL = "__null";
 
-    @SuppressWarnings("unchecked")
     default <E2> GraphTraversal<S, E2> findById(String label,
                                                 String uuid)
     {
         return (GraphTraversal<S, E2>) hasLabel(label).has("uuid", uuid);
     }
 
-    @SuppressWarnings("unchecked")
     default Traversal<S, Object> enrichProperty(String propertyName)
     {
-        return coalesce(__.properties(propertyName).value(), __.<Object>constant(NULL));
+        return properties(propertyName).fold().choose(t -> t.isEmpty(), __.<Object>constant(NULL), __.unfold().value());
     }
 
-    @SuppressWarnings("unchecked")
     default Traversal<S, Object> enrichPropertySet(String propertyName)
     {
-        return coalesce(__.propertyMap(propertyName).map(t -> t.get().get(propertyName)), __.<Object>constant(NULL));
+        return propertyMap(propertyName).fold()
+                                        .choose(t -> t.isEmpty(),
+                                                __.<Object>constant(NULL),
+                                                __.<Map<String, Object>>unfold().map(t -> t.get().get(propertyName)));
     }
 
     default Traversal<S, Object> enrichArtifactCoordinates(EntityTraversal<S, Object> foldTraversal)
@@ -60,7 +66,7 @@ public interface EntityTraversalDsl<S, E> extends GraphTraversal.Admin<S, E>
     {
         uuid = Optional.ofNullable(uuid)
                        .orElse(NULL);
-        GraphTraversal<S, DomainObject> element = findById(label, uuid);
+        GraphTraversal<S, E> element = findById(label, uuid);
 
         return element.fold()
                       .choose(t -> t.isEmpty(),
