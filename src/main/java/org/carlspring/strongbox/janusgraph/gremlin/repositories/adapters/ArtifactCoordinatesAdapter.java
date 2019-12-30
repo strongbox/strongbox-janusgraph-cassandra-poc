@@ -4,6 +4,7 @@ import static org.apache.tinkerpop.gremlin.structure.VertexProperty.Cardinality.
 import static org.carlspring.strongbox.janusgraph.gremlin.repositories.adapters.EntityTraversalUtils.extractObject;
 
 import java.util.Map;
+import java.util.Optional;
 
 import org.apache.tinkerpop.gremlin.process.traversal.Traverser;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
@@ -46,6 +47,17 @@ public class ArtifactCoordinatesAdapter extends VertexEntityTraversalAdapter<Art
     @Override
     public EntityTraversal<Vertex, Vertex> unfold(ArtifactCoordinatesEntity entity)
     {
+        EntityTraversal<Vertex, Vertex> result = __.<Vertex>identity();
+        
+        if (Optional.of(entity).map(e -> e.getPath()).isPresent())
+        {
+            result = result.property(single, "path", entity.getPath());
+        }
+        if (Optional.of(entity).map(e -> e.getVersion()).isPresent())
+        {
+            result = result.property(single, "version", entity.getPath());
+        }
+        
         return __.<Vertex>property(single, "path", entity.getPath())
                  .property(single,
                            "version",
