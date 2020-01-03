@@ -74,7 +74,7 @@ public class ArtifactAdapter extends VertexEntityTraversalAdapter<ArtifactEntity
         ArtifactCoordinatesEntity artifactCoordinates = entity.getArtifactCoordinates();
 
         return __.<Vertex, Edge>coalesce(updateArtifactCoordinates(artifactCoordinates),
-                                         createArtifactCoordinatesRelation(artifactCoordinates))
+                                         createArtifactCoordinates(artifactCoordinates))
                  .outV()
                  .map(unfoldArtifact(entity));
     }
@@ -92,20 +92,36 @@ public class ArtifactAdapter extends VertexEntityTraversalAdapter<ArtifactEntity
     {
         SimpleDateFormat sdf = new SimpleDateFormat(EntityTraversalUtils.DATE_FORMAT);
 
-        EntityTraversal<Vertex, Vertex> result = __.<Vertex>property(single, "storageId", entity.getStorageId())
-                                                   .property(single, "repositoryId", entity.getRepositoryId())
-                                                   .property(single, "sizeInBytes", entity.getSizeInBytes())
-                                                   .property(single, "created", sdf.format(entity.getCreated()));
-        Set<String> tags = entity.getTags();
-        for (String tag : tags)
+        EntityTraversal<Vertex, Vertex> t = __.<Vertex>identity();
+        
+        if (entity.getStorageId() != null) {
+            t = t.property(single, "storageId", entity.getStorageId());
+        }
+        if (entity.getRepositoryId() != null) {
+            t = t.property(single, "repositoryId", entity.getRepositoryId());
+        }
+        if (entity.getSizeInBytes() != null) {
+            t = t.property(single, "sizeInBytes", entity.getSizeInBytes());
+        }
+        if (entity.getCreated() != null) {
+            t = t.property(single, "created", sdf.format(entity.getCreated()));
+        }
+        
+        if (entity.getTags() != null)
         {
-            result = result.property(set, "tags", tag);
+            t = t.sideEffect(__.properties("tags").drop());
+            
+            Set<String> tags = entity.getTags();
+            for (String tag : tags)
+            {
+                t = t.property(set, "tags", tag);
+            }
         }
 
-        return result;
+        return t;
     }
 
-    private <S2> EntityTraversal<S2, Edge> createArtifactCoordinatesRelation(ArtifactCoordinatesEntity artifactCoordinates)
+    private <S2> EntityTraversal<S2, Edge> createArtifactCoordinates(ArtifactCoordinatesEntity artifactCoordinates)
     {
         return __.<S2>addE(Edges.ARTIFACT_ARTIFACTCOORDINATES)
                  .from(__.identity())

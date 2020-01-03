@@ -64,7 +64,11 @@ public interface EntityTraversalDsl<S, E> extends GraphTraversal.Admin<S, E>
 
         return element.fold()
                       .choose(t -> t.isEmpty(),
-                              __.addV(label).property("uuid", UUID.randomUUID().toString()),
+                              __.addV(label)
+                                .property("uuid",
+                                          Optional.of(uuid)
+                                                  .filter(x -> !NULL.equals(x))
+                                                  .orElse(UUID.randomUUID().toString())),
                               __.unfold())
                       .sideEffect(t -> logger.debug(String.format("Saved [%s]-[%s]-[%s]",
                                                                   ((Element) t.get()).label(),
