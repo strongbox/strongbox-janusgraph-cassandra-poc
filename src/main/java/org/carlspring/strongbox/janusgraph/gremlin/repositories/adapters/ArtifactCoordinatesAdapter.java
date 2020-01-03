@@ -55,7 +55,7 @@ public class ArtifactCoordinatesAdapter extends VertexEntityTraversalAdapter<Art
         }
         if (entity.getVersion() != null)
         {
-            t = t.property(single, "version", entity.getPath());
+            t = t.property(single, "version", entity.getVersion());
         }
 
         return t;
