@@ -10,6 +10,18 @@ public class ArtifactCoordinatesEntity extends DomainEntity implements ArtifactC
     private String version;
 
     @Override
+    public String getUuid()
+    {
+        return getPath();
+    }
+
+    @Override
+    public void setUuid(String uuid)
+    {
+        setPath(uuid);
+    }
+
+    @Override
     public String getVersion()
     {
         return version;
