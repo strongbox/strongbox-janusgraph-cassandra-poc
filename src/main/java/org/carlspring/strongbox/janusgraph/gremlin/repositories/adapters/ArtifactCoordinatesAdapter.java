@@ -6,6 +6,7 @@ import static org.carlspring.strongbox.janusgraph.gremlin.repositories.adapters.
 import java.util.Map;
 
 import org.apache.tinkerpop.gremlin.process.traversal.Traverser;
+import org.apache.tinkerpop.gremlin.structure.Element;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.carlspring.strongbox.janusgraph.domain.ArtifactCoordinates;
 import org.carlspring.strongbox.janusgraph.domain.ArtifactCoordinatesEntity;
@@ -59,6 +60,19 @@ public class ArtifactCoordinatesAdapter extends VertexEntityTraversalAdapter<Art
         }
 
         return t;
+    }
+
+    @Override
+    public EntityTraversal<Vertex, ? extends Element> cascade()
+    {
+        return __.<Vertex>identity()
+                 .inject()
+                 .inE()
+                 .sideEffect(t -> System.out.println("cascade ArtifactCoordinates in Edge: " + t.get().id()))
+                 .inject()
+                 .outV()
+                 .sideEffect(t -> System.out.println("cascade ArtifactCoordinates out Vertex: " + t.get().id()))
+                 .inject();
     }
 
 }

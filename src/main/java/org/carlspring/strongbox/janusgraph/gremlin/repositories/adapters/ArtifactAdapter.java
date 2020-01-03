@@ -15,6 +15,7 @@ import javax.inject.Inject;
 
 import org.apache.tinkerpop.gremlin.process.traversal.Traverser;
 import org.apache.tinkerpop.gremlin.structure.Edge;
+import org.apache.tinkerpop.gremlin.structure.Element;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.carlspring.strongbox.janusgraph.domain.Artifact;
 import org.carlspring.strongbox.janusgraph.domain.ArtifactCoordinates;
@@ -135,6 +136,12 @@ public class ArtifactAdapter extends VertexEntityTraversalAdapter<ArtifactEntity
                         artifactCoordinates.getUuid(),
                         artifactCoordinatesAdapter.unfold(artifactCoordinates))
                  .map(artifactCoordinatesAdapter.unfold(artifactCoordinates));
+    }
+
+    @Override
+    public EntityTraversal<Vertex, ? extends Element> cascade()
+    {
+        return __.<Vertex>identity().inject().outE();
     }
 
 }
