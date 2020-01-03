@@ -1,8 +1,10 @@
 package org.carlspring.strongbox.janusgraph.gremlin.repositories;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 import java.util.Arrays;
 import java.util.Date;
@@ -62,12 +64,14 @@ public class GremlinArtifactCoordinatesRepositoryTest
 
         artifactEntity = artifactOptional.get();
         assertEquals(created, artifactEntity.getCreated());
+        assertArrayEquals(new String[] {"release", "latest"}, artifactEntity.getTags().toArray());
 
         artifactCoordinatesEntity = artifactCoordinatesOptional.get();
         assertEquals("org/carlspring/artifact-gacrt.jar", artifactCoordinatesEntity.getPath());
         assertEquals("1.2.3", artifactCoordinatesEntity.getVersion());
 
         artifactEntity.setCreated(created = new Date());
+        artifactEntity.setTags(new HashSet<>(Arrays.asList(new String[] {"beta"})));
         artifactEntity.setArtifactCoordinates(artifactCoordinatesEntity);
         artifactCoordinatesEntity.setVersion("3.2.1");
         artifactEntity = gremlinArtifactRepository.save(artifactEntity);
@@ -75,10 +79,28 @@ public class GremlinArtifactCoordinatesRepositoryTest
         artifactOptional = gremlinArtifactRepository.findById(artifactEntity.getUuid());
         artifactEntity = artifactOptional.get();
         assertEquals(created, artifactOptional.get().getCreated());
+        assertArrayEquals(new String[] {"beta"}, artifactEntity.getTags().toArray());
 
         artifactCoordinatesOptional = gremlinArtifactCoordinatesRepository.findById(artifactCoordinatesEntity.getUuid());
         artifactCoordinatesEntity = artifactCoordinatesOptional.get();
         assertEquals("3.2.1", artifactCoordinatesEntity.getVersion());
+    }
+    
+    @Test
+    public void emptyValuesShouldWork()
+    {
+        ArtifactCoordinatesEntity artifactCoordinatesEntity = new ArtifactCoordinatesEntity();
+        artifactCoordinatesEntity.setPath("org/carlspring/artifact-gacrt-evsw.jar");
+
+        artifactCoordinatesEntity = gremlinArtifactCoordinatesRepository.save(artifactCoordinatesEntity);
+        assertEquals("org/carlspring/artifact-gacrt-evsw.jar", artifactCoordinatesEntity.getUuid());
+        assertEquals("org/carlspring/artifact-gacrt-evsw.jar", artifactCoordinatesEntity.getPath());
+        assertNull(artifactCoordinatesEntity.getVersion());
+        
+        artifactCoordinatesEntity.setVersion("1.2.3");
+        artifactCoordinatesEntity = gremlinArtifactCoordinatesRepository.save(artifactCoordinatesEntity);
+        assertEquals("1.2.3", artifactCoordinatesEntity.getVersion());
+        
     }
 
 }
