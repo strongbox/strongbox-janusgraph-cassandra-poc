@@ -84,6 +84,15 @@ public class GremlinArtifactCoordinatesRepositoryTest
         artifactCoordinatesOptional = gremlinArtifactCoordinatesRepository.findById(artifactCoordinatesEntity.getUuid());
         artifactCoordinatesEntity = artifactCoordinatesOptional.get();
         assertEquals("3.2.1", artifactCoordinatesEntity.getVersion());
+        
+        //Delete
+        gremlinArtifactCoordinatesRepository.deleteById(artifactCoordinatesEntity.getUuid());
+        
+        artifactCoordinatesOptional = gremlinArtifactCoordinatesRepository.findById(artifactCoordinatesEntity.getUuid());
+        assertEquals(Optional.empty(), artifactCoordinatesOptional);
+        
+        artifactOptional = gremlinArtifactRepository.findById(artifactEntity.getUuid());
+        assertEquals(Optional.empty(), artifactOptional);
     }
     
     @Test
@@ -100,7 +109,6 @@ public class GremlinArtifactCoordinatesRepositoryTest
         artifactCoordinatesEntity.setVersion("1.2.3");
         artifactCoordinatesEntity = gremlinArtifactCoordinatesRepository.save(artifactCoordinatesEntity);
         assertEquals("1.2.3", artifactCoordinatesEntity.getVersion());
-        
     }
 
 }

@@ -82,7 +82,10 @@ public abstract class GremlinRepository<S, E extends DomainObject> implements Cr
     @Override
     public void deleteById(String id)
     {
-        throw new UnsupportedOperationException("TODO implement");
+        start(this::g).findById(label(), id)
+                      .map(adapter().cascade())
+                      .sideEffect(t -> System.out.println("cascade delete: " + t.get().id()))
+                      .drop().iterate();
     }
 
     @Override
