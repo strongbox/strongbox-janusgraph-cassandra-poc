@@ -46,10 +46,19 @@ public class ArtifactCoordinatesAdapter extends VertexEntityTraversalAdapter<Art
     @Override
     public EntityTraversal<Vertex, Vertex> unfold(ArtifactCoordinatesEntity entity)
     {
-        return __.<Vertex>property(single, "path", entity.getPath())
-                 .property(single,
-                           "version",
-                           entity.getVersion());
+
+        EntityTraversal<Vertex, Vertex> t = __.<Vertex>identity();
+
+        if (entity.getPath() != null)
+        {
+            t = t.property(single, "path", entity.getPath());
+        }
+        if (entity.getVersion() != null)
+        {
+            t = t.property(single, "version", entity.getPath());
+        }
+
+        return t;
     }
 
 }
