@@ -65,14 +65,12 @@ public class ArtifactCoordinatesAdapter extends VertexEntityTraversalAdapter<Art
     @Override
     public EntityTraversal<Vertex, ? extends Element> cascade()
     {
-        return __.<Vertex>identity()
-                 .inject()
+        return __.<Vertex>aggregate("x")
                  .inE()
-                 .sideEffect(t -> System.out.println("cascade ArtifactCoordinates in Edge: " + t.get().id()))
-                 .inject()
                  .outV()
-                 .sideEffect(t -> System.out.println("cascade ArtifactCoordinates out Vertex: " + t.get().id()))
-                 .inject();
+                 .aggregate("x")
+                 .select("x")
+                 .unfold();
     }
 
 }
