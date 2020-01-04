@@ -1,10 +1,13 @@
 package org.carlspring.strongbox.janusgraph.gremlin.repositories;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
 
 import javax.inject.Inject;
 
+import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.__;
+import org.apache.tinkerpop.gremlin.structure.Element;
 import org.carlspring.strongbox.janusgraph.domain.DomainObject;
 import org.carlspring.strongbox.janusgraph.gremlin.dsl.EntityTraversal;
 import org.carlspring.strongbox.janusgraph.gremlin.dsl.EntityTraversalSource;
@@ -83,9 +86,9 @@ public abstract class GremlinRepository<S, E extends DomainObject> implements Cr
     public void deleteById(String id)
     {
         start(this::g).findById(label(), id)
-                      .map(adapter().cascade())
-                      .sideEffect(t -> System.out.println("cascade delete: " + t.get().id()))
-                      .drop().iterate();
+                      .flatMap(adapter().cascade())
+                      .drop()
+                      .iterate();
     }
 
     @Override
