@@ -94,7 +94,7 @@ public abstract class GremlinRepository<S, E extends DomainObject> implements Cr
     @Override
     public void delete(E entity)
     {
-        throw new UnsupportedOperationException("TODO implement");
+        deleteById(entity.getUuid());
     }
 
     @Override

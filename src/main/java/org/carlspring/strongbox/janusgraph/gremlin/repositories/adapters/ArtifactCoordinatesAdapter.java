@@ -8,8 +8,10 @@ import java.util.Map;
 import org.apache.tinkerpop.gremlin.process.traversal.Traverser;
 import org.apache.tinkerpop.gremlin.structure.Element;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
+import org.carlspring.strongbox.janusgraph.domain.Artifact;
 import org.carlspring.strongbox.janusgraph.domain.ArtifactCoordinates;
 import org.carlspring.strongbox.janusgraph.domain.ArtifactCoordinatesEntity;
+import org.carlspring.strongbox.janusgraph.domain.Edges;
 import org.carlspring.strongbox.janusgraph.gremlin.dsl.EntityTraversal;
 import org.carlspring.strongbox.janusgraph.gremlin.dsl.__;
 import org.springframework.stereotype.Component;
@@ -66,7 +68,7 @@ public class ArtifactCoordinatesAdapter extends VertexEntityTraversalAdapter<Art
     public EntityTraversal<Vertex, ? extends Element> cascade()
     {
         return __.<Vertex>aggregate("x")
-                 .inE()
+                 .inE(Edges.ARTIFACT_ARTIFACTCOORDINATES)
                  .outV()
                  .aggregate("x")
                  .select("x")

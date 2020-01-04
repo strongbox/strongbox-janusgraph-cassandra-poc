@@ -9,6 +9,7 @@ import static org.carlspring.strongbox.janusgraph.gremlin.repositories.adapters.
 import java.text.SimpleDateFormat;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import javax.inject.Inject;
@@ -63,7 +64,9 @@ public class ArtifactAdapter extends VertexEntityTraversalAdapter<ArtifactEntity
         result.setRepositoryId(extractObject(String.class, t.get().get("repositoryId")));
         result.setSizeInBytes(extractObject(Long.class, t.get().get("sizeInBytes")));
         result.setCreated(extractDate(t.get().get("created")));
-        result.setTags(new HashSet<>(extractList(String.class, t.get().get("tags"))));
+        result.setTags(Optional.ofNullable(extractList(String.class, t.get().get("tags")))
+                               .map(HashSet::new)
+                               .orElse(null));
         result.setArtifactCoordinates(extractObject(ArtifactCoordinates.class, t.get().get("artifactCoordinates")));
 
         return result;
@@ -94,24 +97,28 @@ public class ArtifactAdapter extends VertexEntityTraversalAdapter<ArtifactEntity
         SimpleDateFormat sdf = new SimpleDateFormat(EntityTraversalUtils.DATE_FORMAT);
 
         EntityTraversal<Vertex, Vertex> t = __.<Vertex>identity();
-        
-        if (entity.getStorageId() != null) {
+
+        if (entity.getStorageId() != null)
+        {
             t = t.property(single, "storageId", entity.getStorageId());
         }
-        if (entity.getRepositoryId() != null) {
+        if (entity.getRepositoryId() != null)
+        {
             t = t.property(single, "repositoryId", entity.getRepositoryId());
         }
-        if (entity.getSizeInBytes() != null) {
+        if (entity.getSizeInBytes() != null)
+        {
             t = t.property(single, "sizeInBytes", entity.getSizeInBytes());
         }
-        if (entity.getCreated() != null) {
+        if (entity.getCreated() != null)
+        {
             t = t.property(single, "created", sdf.format(entity.getCreated()));
         }
-        
+
         if (entity.getTags() != null)
         {
             t = t.sideEffect(__.properties("tags").drop());
-            
+
             Set<String> tags = entity.getTags();
             for (String tag : tags)
             {
@@ -141,7 +148,13 @@ public class ArtifactAdapter extends VertexEntityTraversalAdapter<ArtifactEntity
     @Override
     public EntityTraversal<Vertex, ? extends Element> cascade()
     {
-        return __.<Vertex>identity().inject().outE();
+        return __.<Vertex>aggregate("x")
+                 .optional(__.outE(Edges.ARTIFACT_ARTIFACTCOORDINATES)
+                             .inV()
+                             .where(__.inE(Edges.ARTIFACT_ARTIFACTCOORDINATES).count().is(1))
+                             .aggregate("x"))
+                 .select("x")
+                 .unfold();
     }
 
 }
