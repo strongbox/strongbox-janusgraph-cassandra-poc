@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.janusgraph.gremlin.dsl;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -9,6 +10,7 @@ import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversal;
 import org.apache.tinkerpop.gremlin.structure.Edge;
 import org.apache.tinkerpop.gremlin.structure.Element;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
+import org.carlspring.strongbox.janusgraph.domain.Artifact;
 import org.carlspring.strongbox.janusgraph.domain.DomainObject;
 import org.carlspring.strongbox.janusgraph.domain.Edges;
 import org.slf4j.Logger;
@@ -52,6 +54,18 @@ public interface EntityTraversalDsl<S, E> extends GraphTraversal.Admin<S, E>
                                                                  .choose(t -> t.isEmpty(),
                                                                          __.<Object>constant(NULL),
                                                                          __.<Vertex>unfold().map(foldTraversal)));
+    }
+
+    default GraphTraversal<S, List<Object>> enrichArtifacts(EntityTraversal<S, Object> foldTraversal)
+    {
+        return outE(Edges.ARTIFACTGROUP_ARTIFACT).fold()
+                                                 .choose(t -> t.isEmpty(),
+                                                         __.<Object>constant(NULL),
+                                                         __.<Edge>unfold()
+                                                           .inV()
+                                                           .hasLabel(Artifact.LABEL)
+                                                           .map(foldTraversal))
+                                                 .fold();
     }
 
     default <S2> Traversal<S, Vertex> saveV(String label,

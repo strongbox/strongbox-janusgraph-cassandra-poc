@@ -1,18 +1,17 @@
 package org.carlspring.strongbox.janusgraph.gremlin.repositories;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
 
 import javax.inject.Inject;
 
-import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.__;
-import org.apache.tinkerpop.gremlin.structure.Element;
 import org.carlspring.strongbox.janusgraph.domain.DomainObject;
 import org.carlspring.strongbox.janusgraph.gremlin.dsl.EntityTraversal;
 import org.carlspring.strongbox.janusgraph.gremlin.dsl.EntityTraversalSource;
 import org.carlspring.strongbox.janusgraph.gremlin.repositories.adapters.EntityTraversalAdapter;
 import org.janusgraph.core.JanusGraph;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.repository.CrudRepository;
 
 /**
@@ -22,6 +21,8 @@ import org.springframework.data.repository.CrudRepository;
 public abstract class GremlinRepository<S, E extends DomainObject> implements CrudRepository<E, String>
 {
 
+    private static final Logger logger = LoggerFactory.getLogger(GremlinRepository.class);
+    
     @Inject
     private JanusGraph janusGraph;
 
@@ -87,6 +88,8 @@ public abstract class GremlinRepository<S, E extends DomainObject> implements Cr
     {
         start(this::g).findById(label(), id)
                       .flatMap(adapter().cascade())
+                      .dedup()
+                      .sideEffect(t -> logger.debug(String.format("Delete [%s]-[%s]", t.get().label(), t.get().id())))
                       .drop()
                       .iterate();
     }

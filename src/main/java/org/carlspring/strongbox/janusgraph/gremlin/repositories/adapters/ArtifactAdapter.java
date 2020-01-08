@@ -25,12 +25,16 @@ import org.carlspring.strongbox.janusgraph.domain.ArtifactEntity;
 import org.carlspring.strongbox.janusgraph.domain.Edges;
 import org.carlspring.strongbox.janusgraph.gremlin.dsl.EntityTraversal;
 import org.carlspring.strongbox.janusgraph.gremlin.dsl.__;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 @Component
 public class ArtifactAdapter extends VertexEntityTraversalAdapter<ArtifactEntity>
 {
 
+    private static final Logger logger = LoggerFactory.getLogger(ArtifactAdapter.class);
+    
     @Inject
     private ArtifactCoordinatesAdapter artifactCoordinatesAdapter;
 
@@ -80,7 +84,9 @@ public class ArtifactAdapter extends VertexEntityTraversalAdapter<ArtifactEntity
         return __.<Vertex, Edge>coalesce(updateArtifactCoordinates(artifactCoordinates),
                                          createArtifactCoordinates(artifactCoordinates))
                  .outV()
-                 .map(unfoldArtifact(entity));
+                 .map(unfoldArtifact(entity))
+                 .sideEffect(t -> logger.debug(String.format("unfolded: [%s]-[%s]-[%s]", t.get().label(), t.get().id(),
+                                                             entity.getUuid())));
     }
 
     private EntityTraversal<Vertex, Edge> updateArtifactCoordinates(ArtifactCoordinatesEntity artifactCoordinates)
@@ -89,6 +95,8 @@ public class ArtifactAdapter extends VertexEntityTraversalAdapter<ArtifactEntity
                  .as(Edges.ARTIFACT_ARTIFACTCOORDINATES)
                  .inV()
                  .map(saveArtifactCoordinates(artifactCoordinates))
+                 .sideEffect(t -> logger.debug(String.format("updated: [%s]-[%s]-[%s]", t.get().label(), t.get().id(),
+                                                            artifactCoordinates.getUuid())))
                  .select(Edges.ARTIFACT_ARTIFACTCOORDINATES);
     }
 
@@ -133,7 +141,9 @@ public class ArtifactAdapter extends VertexEntityTraversalAdapter<ArtifactEntity
     {
         return __.<S2>addE(Edges.ARTIFACT_ARTIFACTCOORDINATES)
                  .from(__.identity())
-                 .to(saveArtifactCoordinates(artifactCoordinates));
+                 .to(saveArtifactCoordinates(artifactCoordinates))
+                 .sideEffect(t -> logger.debug(String.format("created: [%s]-[%s]-[%s]", t.get().label(), t.get().id(),
+                                                             artifactCoordinates.getUuid())));
     }
 
     private <S2> EntityTraversal<S2, Vertex> saveArtifactCoordinates(ArtifactCoordinatesEntity artifactCoordinates)
@@ -141,8 +151,7 @@ public class ArtifactAdapter extends VertexEntityTraversalAdapter<ArtifactEntity
         return __.<S2>V()
                  .saveV(ArtifactCoordinates.LABEL,
                         artifactCoordinates.getUuid(),
-                        artifactCoordinatesAdapter.unfold(artifactCoordinates))
-                 .map(artifactCoordinatesAdapter.unfold(artifactCoordinates));
+                        artifactCoordinatesAdapter.unfold(artifactCoordinates));
     }
 
     @Override

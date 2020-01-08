@@ -43,6 +43,7 @@ public class ArtifactCoordinatesEntity extends DomainEntity implements ArtifactC
     public void setPath(String id)
     {
         this.path = id;
+        super.setUuid(id);
     }
 
 }

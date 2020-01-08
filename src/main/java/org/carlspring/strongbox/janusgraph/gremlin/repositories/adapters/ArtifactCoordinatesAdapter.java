@@ -8,7 +8,6 @@ import java.util.Map;
 import org.apache.tinkerpop.gremlin.process.traversal.Traverser;
 import org.apache.tinkerpop.gremlin.structure.Element;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
-import org.carlspring.strongbox.janusgraph.domain.Artifact;
 import org.carlspring.strongbox.janusgraph.domain.ArtifactCoordinates;
 import org.carlspring.strongbox.janusgraph.domain.ArtifactCoordinatesEntity;
 import org.carlspring.strongbox.janusgraph.domain.Edges;
@@ -49,7 +48,6 @@ public class ArtifactCoordinatesAdapter extends VertexEntityTraversalAdapter<Art
     @Override
     public EntityTraversal<Vertex, Vertex> unfold(ArtifactCoordinatesEntity entity)
     {
-
         EntityTraversal<Vertex, Vertex> t = __.<Vertex>identity();
 
         if (entity.getPath() != null)
