@@ -66,7 +66,6 @@ public class RepositoryArtifactIdGroupRepositoryTest
         
         ArtifactCoordinatesEntity artifactCoordinatesEntity = new ArtifactCoordinatesEntity();
         artifactCoordinatesEntity.setPath("org/carlspring/repository-artifact-id-group-repository-test/crud.should.work");
-        artifactCoordinatesEntity.setUuid(UUID.randomUUID().toString());
         artifactCoordinatesEntity.setVersion("1.2.3");
         artifactEntity.setArtifactCoordinates(artifactCoordinatesEntity);
         

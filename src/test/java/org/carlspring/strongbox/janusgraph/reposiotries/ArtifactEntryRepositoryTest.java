@@ -64,7 +64,6 @@ public class ArtifactEntryRepositoryTest
     {
         ArtifactCoordinatesEntity artifactCoordinates = new ArtifactCoordinatesEntity();
         artifactCoordinates.setPath("org/carlspring/test-artifact-3.0.0.jar");
-        artifactCoordinates.setUuid(UUID.randomUUID().toString());
         artifactCoordinates.setVersion("3.0.0");
 
         Date createdOn = new Date();

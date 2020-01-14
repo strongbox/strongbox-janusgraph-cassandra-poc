@@ -85,18 +85,14 @@ public class ArtifactCoordinatesReporitoryTest
 
     @Test
     public void crudShouldWork() {
-        String uuid = UUID.randomUUID().toString();
-        
         ArtifactCoordinatesEntity artifactCoordinates = new ArtifactCoordinatesEntity();
         artifactCoordinates.setPath("org/carlspring/test-artifact-1.0.0.jar");
-        artifactCoordinates.setUuid(uuid);
         artifactCoordinates.setVersion("1.0.0");
         
         ArtifactCoordinatesEntity artifactCoordinatesSaved = artifactCoordinatesRepository.save(artifactCoordinates);
         assertEquals(artifactCoordinates.getUuid(), artifactCoordinatesSaved.getUuid());
         
         artifactCoordinates.setPath("org/carlspring/test-artifact-2.0.0.jar");
-        artifactCoordinates.setUuid(uuid);
         artifactCoordinates.setVersion("2.0.0");
         artifactCoordinatesSaved = artifactCoordinatesRepository.save(artifactCoordinates);
         assertEquals(artifactCoordinates.getUuid(), artifactCoordinatesSaved.getUuid());        
