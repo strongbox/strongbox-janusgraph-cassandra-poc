@@ -39,7 +39,6 @@ public class EntityGeneratorUtil
     public static ArtifactCoordinatesEntity createRandomArtifactCoordinates()
     {
         ArtifactCoordinatesEntity coordinates = new ArtifactCoordinatesEntity();
-        coordinates.setUuid(UUID.randomUUID().toString());
         coordinates.setPath(RandomStringUtils.randomAlphanumeric(24));
         coordinates.setVersion(RandomStringUtils.random(16, "0123456789-."));
         return coordinates;

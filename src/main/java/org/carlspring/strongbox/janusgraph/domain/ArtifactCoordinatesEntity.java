@@ -18,6 +18,7 @@ public class ArtifactCoordinatesEntity extends DomainEntity implements ArtifactC
     @Override
     public void setUuid(String uuid)
     {
+        super.setUuid(uuid);
         setPath(uuid);
     }
 
@@ -42,8 +43,8 @@ public class ArtifactCoordinatesEntity extends DomainEntity implements ArtifactC
     @Override
     public void setPath(String id)
     {
-        this.path = id;
         super.setUuid(id);
+        this.path = id;
     }
 
 }
