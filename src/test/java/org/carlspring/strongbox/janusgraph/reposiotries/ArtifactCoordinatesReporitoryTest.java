@@ -4,7 +4,6 @@ import static org.apache.tinkerpop.gremlin.process.traversal.P.eq;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
 
 import javax.inject.Inject;
@@ -13,8 +12,6 @@ import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSo
 import org.carlspring.strongbox.janusgraph.app.Application;
 import org.carlspring.strongbox.janusgraph.domain.ArtifactCoordinates;
 import org.carlspring.strongbox.janusgraph.domain.ArtifactCoordinatesEntity;
-import org.carlspring.strongbox.janusgraph.gremlin.dsl.EntityTraversalSource;
-import org.carlspring.strongbox.janusgraph.gremlin.projections.ArtifactCoordinatesProjection;
 import org.carlspring.strongbox.janusgraph.repositories.ArtifactCoordinatesRepository;
 import org.janusgraph.core.JanusGraph;
 import org.janusgraph.core.JanusGraphTransaction;
