@@ -43,7 +43,7 @@ public interface EntityTraversalDsl<S, E> extends GraphTraversal.Admin<S, E>
         return coalesce(__.propertyMap(propertyName).map(t -> t.get().get(propertyName)), __.<Object>constant(NULL));
     }
 
-    default Traversal<S, Object> enrichArtifactCoordinates(EntityTraversal<S, Object> foldTraversal)
+    default Traversal<S, Object> enrichArtifactCoordinates(Traversal<S, Object> foldTraversal)
     {
         return outE(Edges.ARTIFACT_ARTIFACTCOORDINATES).fold()
                                                        .choose(t -> t.isEmpty(),
@@ -56,7 +56,7 @@ public interface EntityTraversalDsl<S, E> extends GraphTraversal.Admin<S, E>
                                                                          __.<Vertex>unfold().map(foldTraversal)));
     }
 
-    default GraphTraversal<S, List<Object>> enrichArtifacts(EntityTraversal<S, Object> foldTraversal)
+    default GraphTraversal<S, List<Object>> enrichArtifacts(Traversal<S, Object> foldTraversal)
     {
         return outE(Edges.ARTIFACTGROUP_ARTIFACT).fold()
                                                  .choose(t -> t.isEmpty(),
@@ -70,7 +70,7 @@ public interface EntityTraversalDsl<S, E> extends GraphTraversal.Admin<S, E>
 
     default <S2> Traversal<S, Vertex> saveV(String label,
                                             String uuid,
-                                            EntityTraversal<S2, Vertex> unfoldTraversal)
+                                            Traversal<S2, Vertex> unfoldTraversal)
     {
         uuid = Optional.ofNullable(uuid)
                        .orElse(NULL);
