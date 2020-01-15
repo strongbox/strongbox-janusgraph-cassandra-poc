@@ -17,6 +17,7 @@ import org.carlspring.strongbox.janusgraph.app.Application;
 import org.carlspring.strongbox.janusgraph.domain.ArtifactCoordinatesEntity;
 import org.carlspring.strongbox.janusgraph.domain.ArtifactEntity;
 import org.carlspring.strongbox.janusgraph.domain.ArtifactGroupEntity;
+import org.carlspring.strongbox.janusgraph.domain.RepositoryArtifactIdGroupEntity;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -36,6 +37,10 @@ public class GremlinArtifactGroupRepositoryTest
     @Inject
     @Qualifier("gremlinArtifactCoordinatesRepository")
     private ArtifactCoordinatesRepository gremlinArtifactCoordinatesRepository;
+
+    @Inject
+    @Qualifier("gremlinRepositoryArtifactIdGroupRepository")
+    private RepositoryArtifactIdGroupRepository repositoryArtifactIdGroupRepository;
 
     @Test
     public void crudShouldWork()
@@ -115,6 +120,66 @@ public class GremlinArtifactGroupRepositoryTest
         artifactCoordinatesIdSet.stream()
                                 .forEach(id -> assertEquals(Optional.empty(),
                                                             gremlinArtifactCoordinatesRepository.findById(id)));
+    }
+
+    @Test
+    public void inheritanceShouldWork()
+    {
+        ArtifactCoordinatesEntity artifactCoordinatesEntity = new ArtifactCoordinatesEntity();
+        artifactCoordinatesEntity.setPath("org/carlspring/artifact-gagrt-isw-1.2.3.jar");
+        artifactCoordinatesEntity.setVersion("1.2.3");
+
+        ArtifactEntity artifactEntity = new ArtifactEntity();
+        artifactEntity.setStorageId("storage0");
+        artifactEntity.setRepositoryId("releases");
+        artifactEntity.setArtifactCoordinates(artifactCoordinatesEntity);
+
+        RepositoryArtifactIdGroupEntity repositoryArtifactIdGroupEntity = new RepositoryArtifactIdGroupEntity();
+        repositoryArtifactIdGroupEntity.setGroupId("org/carlspring/artifact-gagrt-isw");
+        repositoryArtifactIdGroupEntity.setStorageId("storage0");
+        repositoryArtifactIdGroupEntity.setRepositoryId("releases");
+        repositoryArtifactIdGroupEntity.setArtifacts(new HashSet<>(
+                Arrays.asList(new ArtifactEntity[] { artifactEntity })));
+
+        // Create
+        repositoryArtifactIdGroupEntity = repositoryArtifactIdGroupRepository.save(repositoryArtifactIdGroupEntity);
+        assertNotNull(repositoryArtifactIdGroupEntity);
+        assertNotNull(repositoryArtifactIdGroupEntity.getUuid());
+        assertEquals(1, repositoryArtifactIdGroupEntity.getArtifacts().size());
+
+        String repositoryArtifactIdGroupId = repositoryArtifactIdGroupEntity.getUuid();
+        String artifactGroupId = repositoryArtifactIdGroupEntity.getArtifactGroup().getUuid();
+        // Inherited entities ids should be the same
+        assertEquals(repositoryArtifactIdGroupId, artifactGroupId);
+
+        // Read
+        Optional<ArtifactGroupEntity> artifactGroupOptional = gremlinArtifactGroupRepository.findById(artifactGroupId);
+        assertNotEquals(Optional.empty(), artifactGroupOptional);
+
+        ArtifactGroupEntity artifactGroupEntity = artifactGroupOptional.get();
+        assertEquals(repositoryArtifactIdGroupId, artifactGroupEntity.getUuid());
+
+        // Update
+        repositoryArtifactIdGroupEntity.setGroupId("org/carlspring/artifact-gagrt-isw-new");
+        repositoryArtifactIdGroupEntity = repositoryArtifactIdGroupRepository.save(repositoryArtifactIdGroupEntity);
+        artifactGroupEntity = repositoryArtifactIdGroupEntity.getArtifactGroup();
+        assertEquals("org/carlspring/artifact-gagrt-isw-new", artifactGroupEntity.getGroupId());
+
+        // Delete
+        repositoryArtifactIdGroupRepository.delete(repositoryArtifactIdGroupEntity);
+        assertEquals(Optional.empty(), repositoryArtifactIdGroupRepository.findById(repositoryArtifactIdGroupId));
+        assertEquals(Optional.empty(), gremlinArtifactGroupRepository.findById(repositoryArtifactIdGroupId));
+        assertEquals(Optional.empty(),
+                     gremlinArtifactRepository.findById(repositoryArtifactIdGroupEntity.getArtifacts()
+                                                                                       .iterator()
+                                                                                       .next()
+                                                                                       .getUuid()));
+        assertEquals(Optional.empty(),
+                     gremlinArtifactCoordinatesRepository.findById(repositoryArtifactIdGroupEntity.getArtifacts()
+                                                                                                  .iterator()
+                                                                                                  .next()
+                                                                                                  .getArtifactCoordinates()
+                                                                                                  .getUuid()));
     }
 
 }

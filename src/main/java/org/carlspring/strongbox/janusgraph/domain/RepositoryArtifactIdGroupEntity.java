@@ -1,6 +1,5 @@
 package org.carlspring.strongbox.janusgraph.domain;
 
-import java.util.Objects;
 import java.util.Set;
 
 import org.neo4j.ogm.annotation.NodeEntity;
@@ -12,16 +11,16 @@ public class RepositoryArtifactIdGroupEntity extends DomainEntity implements Rep
     private String storageId;
     private String repositoryId;
     @Relationship(type = "RepositoryArtifactIdGroupEntity_ArtifactGroupEntity", direction = Relationship.OUTGOING)
-    private ArtifactGroupEntity artifactGroup = new ArtifactGroupEntity();
+    private ArtifactGroupEntity artifactGroup;
 
-    public String getUuid()
+    public RepositoryArtifactIdGroupEntity()
     {
-        String uuid = super.getUuid();
-        if (!Objects.equals(uuid, artifactGroup.getUuid()))
-        {
-            throw new IllegalStateException();
-        }
-        return uuid;
+        this(new ArtifactGroupEntity());
+    }
+
+    public RepositoryArtifactIdGroupEntity(ArtifactGroupEntity artifactGroup)
+    {
+        this.artifactGroup = artifactGroup;
     }
 
     public void setUuid(String uuid)
@@ -74,6 +73,11 @@ public class RepositoryArtifactIdGroupEntity extends DomainEntity implements Rep
     public void setArtifacts(Set<ArtifactEntity> artifactEntries)
     {
         artifactGroup.setArtifacts(artifactEntries);
+    }
+
+    public ArtifactGroupEntity getArtifactGroup()
+    {
+        return artifactGroup;
     }
 
 }

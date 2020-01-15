@@ -34,7 +34,7 @@ public class ArtifactAdapter extends VertexEntityTraversalAdapter<ArtifactEntity
 {
 
     private static final Logger logger = LoggerFactory.getLogger(ArtifactAdapter.class);
-    
+
     @Inject
     private ArtifactCoordinatesAdapter artifactCoordinatesAdapter;
 
@@ -49,14 +49,17 @@ public class ArtifactAdapter extends VertexEntityTraversalAdapter<ArtifactEntity
     {
         return __.<Vertex, Object>project("uuid", "storageId", "repositoryId", "sizeInBytes", "created", "tags",
                                           "artifactCoordinates")
-                 .by(__.enrichProperty("uuid"))
-                 .by(__.enrichProperty("storageId"))
-                 .by(__.enrichProperty("repositoryId"))
-                 .by(__.enrichProperty("sizeInBytes"))
-                 .by(__.enrichProperty("created"))
-                 .by(__.enrichPropertySet("tags"))
-                 .by(__.enrichArtifactCoordinates(artifactCoordinatesAdapter.fold()
-                                                                            .map(t -> Object.class.cast(t.get()))))
+                 .by(__.enrichPropertyValue("uuid"))
+                 .by(__.enrichPropertyValue("storageId"))
+                 .by(__.enrichPropertyValue("repositoryId"))
+                 .by(__.enrichPropertyValue("sizeInBytes"))
+                 .by(__.enrichPropertyValue("created"))
+                 .by(__.enrichPropertyValues("tags"))
+                 .by(__.outE(Edges.ARTIFACT_ARTIFACTCOORDINATES)
+                       .mapToObject(__.inV()
+                                      .hasLabel(ArtifactCoordinates.LABEL)
+                                      .map(artifactCoordinatesAdapter.fold())
+                                      .map(EntityTraversalUtils::castToObject)))
                  .map(this::map);
     }
 
@@ -84,9 +87,7 @@ public class ArtifactAdapter extends VertexEntityTraversalAdapter<ArtifactEntity
         return __.<Vertex, Edge>coalesce(updateArtifactCoordinates(artifactCoordinates),
                                          createArtifactCoordinates(artifactCoordinates))
                  .outV()
-                 .map(unfoldArtifact(entity))
-                 .sideEffect(t -> logger.debug(String.format("unfolded: [%s]-[%s]-[%s]", t.get().label(), t.get().id(),
-                                                             entity.getUuid())));
+                 .map(unfoldArtifact(entity));
     }
 
     private EntityTraversal<Vertex, Edge> updateArtifactCoordinates(ArtifactCoordinatesEntity artifactCoordinates)
@@ -95,9 +96,22 @@ public class ArtifactAdapter extends VertexEntityTraversalAdapter<ArtifactEntity
                  .as(Edges.ARTIFACT_ARTIFACTCOORDINATES)
                  .inV()
                  .map(saveArtifactCoordinates(artifactCoordinates))
-                 .sideEffect(t -> logger.debug(String.format("updated: [%s]-[%s]-[%s]", t.get().label(), t.get().id(),
-                                                            artifactCoordinates.getUuid())))
                  .select(Edges.ARTIFACT_ARTIFACTCOORDINATES);
+    }
+
+    private <S2> EntityTraversal<S2, Edge> createArtifactCoordinates(ArtifactCoordinatesEntity artifactCoordinates)
+    {
+        return __.<S2>addE(Edges.ARTIFACT_ARTIFACTCOORDINATES)
+                 .from(__.identity())
+                 .to(saveArtifactCoordinates(artifactCoordinates));
+    }
+
+    private <S2> EntityTraversal<S2, Vertex> saveArtifactCoordinates(ArtifactCoordinatesEntity artifactCoordinates)
+    {
+        return __.<S2>V()
+                 .saveV(ArtifactCoordinates.LABEL,
+                        artifactCoordinates.getUuid(),
+                        artifactCoordinatesAdapter.unfold(artifactCoordinates));
     }
 
     private EntityTraversal<Vertex, Vertex> unfoldArtifact(ArtifactEntity entity)
@@ -135,23 +149,6 @@ public class ArtifactAdapter extends VertexEntityTraversalAdapter<ArtifactEntity
         }
 
         return t;
-    }
-
-    private <S2> EntityTraversal<S2, Edge> createArtifactCoordinates(ArtifactCoordinatesEntity artifactCoordinates)
-    {
-        return __.<S2>addE(Edges.ARTIFACT_ARTIFACTCOORDINATES)
-                 .from(__.identity())
-                 .to(saveArtifactCoordinates(artifactCoordinates))
-                 .sideEffect(t -> logger.debug(String.format("created: [%s]-[%s]-[%s]", t.get().label(), t.get().id(),
-                                                             artifactCoordinates.getUuid())));
-    }
-
-    private <S2> EntityTraversal<S2, Vertex> saveArtifactCoordinates(ArtifactCoordinatesEntity artifactCoordinates)
-    {
-        return __.<S2>V()
-                 .saveV(ArtifactCoordinates.LABEL,
-                        artifactCoordinates.getUuid(),
-                        artifactCoordinatesAdapter.unfold(artifactCoordinates));
     }
 
     @Override
