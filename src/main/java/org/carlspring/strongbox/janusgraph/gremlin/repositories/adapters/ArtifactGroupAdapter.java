@@ -48,10 +48,14 @@ public class ArtifactGroupAdapter extends VertexEntityTraversalAdapter<ArtifactG
     public EntityTraversal<Vertex, ArtifactGroupEntity> fold()
     {
         return __.<Vertex, Object>project("uuid", "groupId", "artifacts")
-                 .by(__.enrichProperty("uuid"))
-                 .by(__.enrichProperty("groupId"))
-                 .by(__.enrichArtifacts(artifactAdapter.fold()
-                                                       .map(t -> Object.class.cast(t.get()))))
+                 .by(__.enrichPropertyValue("uuid"))
+                 .by(__.enrichPropertyValue("groupId"))
+                 .by(__.outE(Edges.ARTIFACTGROUP_ARTIFACT)
+                       .mapToObject(__.inV()
+                                      .hasLabel(Artifact.LABEL)
+                                      .map(artifactAdapter.fold())
+                                      .map(EntityTraversalUtils::castToObject))
+                       .fold())
                  .map(this::map);
     }
 
@@ -94,9 +98,7 @@ public class ArtifactGroupAdapter extends VertexEntityTraversalAdapter<ArtifactG
                                                    ArtifactEntity artifactEntity)
     {
         String alias = String.format("%s_%s", Edges.ARTIFACTGROUP_ARTIFACT, i);
-        return this.<Edge>saveArtifact(artifactEntity)
-                   .sideEffect(t -> logger.debug(String.format("created: [%s]-[%s]-[%s]", alias, t.get().id(),
-                                                               artifactEntity.getUuid())));
+        return this.<Edge>saveArtifact(artifactEntity);
     }
 
     private Traversal<Edge, Vertex> updateArtifact(int i,
@@ -104,8 +106,6 @@ public class ArtifactGroupAdapter extends VertexEntityTraversalAdapter<ArtifactG
     {
         String alias = String.format("%s_%s", Edges.ARTIFACTGROUP_ARTIFACT, i);
         return __.<Vertex, Edge>findById(Artifact.LABEL, artifactEntity.getUuid())
-                 .sideEffect(t -> logger.debug(String.format("update: [%s]-[%s]-[%s]", alias, t.get().id(),
-                                                             artifactEntity.getUuid())))
                  .map(saveArtifact(artifactEntity))
                  .select(alias);
     }
@@ -115,20 +115,18 @@ public class ArtifactGroupAdapter extends VertexEntityTraversalAdapter<ArtifactG
         return __.<S2>V()
                  .saveV(Artifact.LABEL,
                         artifact.getUuid(),
-                        artifactAdapter.unfold(artifact))
-                 .sideEffect(t -> logger.debug(String.format("saved: [%s]-[%s]-[%s]", Artifact.LABEL, t.get().id(),
-                                                             artifact.getUuid())));
+                        artifactAdapter.unfold(artifact));
     }
 
     @Override
     public EntityTraversal<Vertex, ? extends Element> cascade()
     {
         return __.<Vertex>aggregate("x")
-                .outE(Edges.ARTIFACTGROUP_ARTIFACT)
-                .inV()
-                .map(artifactAdapter.cascade())
-                .select("x")
-                .unfold();
+                 .outE(Edges.ARTIFACTGROUP_ARTIFACT)
+                 .inV()
+                 .map(artifactAdapter.cascade())
+                 .select("x")
+                 .unfold();
     }
 
 }

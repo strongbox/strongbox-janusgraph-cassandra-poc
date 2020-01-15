@@ -29,9 +29,9 @@ public class ArtifactCoordinatesAdapter extends VertexEntityTraversalAdapter<Art
     public EntityTraversal<Vertex, ArtifactCoordinatesEntity> fold()
     {
         return __.<Vertex, Object>project("uuid", "path", "version")
-                 .by(__.enrichProperty("uuid"))
-                 .by(__.enrichProperty("path"))
-                 .by(__.enrichProperty("version"))
+                 .by(__.enrichPropertyValue("uuid"))
+                 .by(__.enrichPropertyValue("path"))
+                 .by(__.enrichPropertyValue("version"))
                  .map(this::map);
     }
 
