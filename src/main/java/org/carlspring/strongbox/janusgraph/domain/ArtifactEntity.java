@@ -6,19 +6,27 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.carlspring.strongbox.janusgraph.domain.converter.SetPropertyConverter;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
+import org.neo4j.ogm.annotation.typeconversion.Convert;
 import org.neo4j.ogm.annotation.typeconversion.DateString;
 
 @NodeEntity(Artifact.LABEL)
 public class ArtifactEntity extends DomainEntity implements Artifact
 {
     private String storageId;
+
     private String repositoryId;
+
     private Long sizeInBytes;
+
     @DateString(DATE_FORMAT)
     private Date created;
+
+    @Convert(SetPropertyConverter.class)
     private Set<String> tags = new HashSet<>();
+
     @Relationship(type = Edges.ARTIFACT_ARTIFACTCOORDINATES, direction = Relationship.OUTGOING)
     private ArtifactCoordinatesEntity artifactCoordinates;
 

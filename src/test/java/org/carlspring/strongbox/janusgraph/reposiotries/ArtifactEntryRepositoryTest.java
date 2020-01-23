@@ -92,10 +92,9 @@ public class ArtifactEntryRepositoryTest
         assertEquals(createdOn, artifactEntrySaved.getCreated());
         Set<String> tags = artifactEntrySaved.getTags();
         assertNotNull(tags);
-        //TODO: fix tags
-        //assertEquals(2, tags.size());
-        //assertTrue(tags.contains("release"));
-        //assertTrue(tags.contains("stabile"));
+        assertEquals(2, tags.size());
+        assertTrue(tags.contains("release"));
+        assertTrue(tags.contains("stabile"));
     }
 
     @Test
