@@ -15,6 +15,8 @@ public class SetPropertyConverter implements AttributeConverter<Set<String>, Str
 
     private static final String EMPTY_STRING = "";
 
+    private static final String COMMA = ",";
+
     @Override
     public String toGraphProperty(Set<String> value)
     {
@@ -23,9 +25,9 @@ public class SetPropertyConverter implements AttributeConverter<Set<String>, Str
             StringBuilder builder = new StringBuilder();
             for (String element : value)
             {
-                builder.append(element).append(",");
+                builder.append(element).append(COMMA);
             }
-            return builder.toString().substring(0, builder.toString().lastIndexOf(","));
+            return builder.toString().substring(0, builder.toString().lastIndexOf(COMMA));
         }
         return EMPTY_STRING;
     }
@@ -35,7 +37,7 @@ public class SetPropertyConverter implements AttributeConverter<Set<String>, Str
     {
         if (!StringUtils.isEmpty(value))
         {
-            return new HashSet<>(Arrays.asList(value.split(",")));
+            return new HashSet<>(Arrays.asList(value.split(COMMA)));
         }
         return new HashSet<>();
     }
