@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.janusgraph.reposiotries;
+package org.carlspring.strongbox.janusgraph.repositories;
 
 import static org.apache.tinkerpop.gremlin.process.traversal.P.eq;
 import static org.junit.Assert.assertNotEquals;
@@ -29,8 +29,7 @@ import org.carlspring.strongbox.janusgraph.domain.ArtifactDependency;
 import org.carlspring.strongbox.janusgraph.domain.ArtifactDependencyEntity;
 import org.carlspring.strongbox.janusgraph.domain.ArtifactEntity;
 import org.carlspring.strongbox.janusgraph.domain.Edges;
-import org.carlspring.strongbox.janusgraph.repositories.ArtifactCoordinatesRepository;
-import org.carlspring.strongbox.janusgraph.repositories.ArtifactRepository;
+
 import org.janusgraph.core.JanusGraph;
 import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.session.SessionFactory;

@@ -1,14 +1,12 @@
-package org.carlspring.strongbox.janusgraph.reposiotries;
+package org.carlspring.strongbox.janusgraph.repositories;
 
 import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 
 import javax.inject.Inject;
@@ -26,9 +24,7 @@ import org.carlspring.strongbox.janusgraph.domain.ArtifactGroup;
 import org.carlspring.strongbox.janusgraph.domain.Edges;
 import org.carlspring.strongbox.janusgraph.domain.RepositoryArtifactIdGroup;
 import org.carlspring.strongbox.janusgraph.domain.RepositoryArtifactIdGroupEntity;
-import org.carlspring.strongbox.janusgraph.repositories.ArtifactCoordinatesRepository;
-import org.carlspring.strongbox.janusgraph.repositories.ArtifactRepository;
-import org.carlspring.strongbox.janusgraph.repositories.RepositoryArtifactIdGroupRepository;
+
 import org.janusgraph.core.JanusGraph;
 import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.session.Session;

@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.janusgraph.reposiotries;
+package org.carlspring.strongbox.janusgraph.repositories;
 
 import static org.apache.tinkerpop.gremlin.process.traversal.P.eq;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -12,7 +12,7 @@ import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSo
 import org.carlspring.strongbox.janusgraph.app.Application;
 import org.carlspring.strongbox.janusgraph.domain.ArtifactCoordinates;
 import org.carlspring.strongbox.janusgraph.domain.ArtifactCoordinatesEntity;
-import org.carlspring.strongbox.janusgraph.repositories.ArtifactCoordinatesRepository;
+
 import org.janusgraph.core.JanusGraph;
 import org.janusgraph.core.JanusGraphTransaction;
 import org.junit.jupiter.api.Test;
@@ -26,10 +26,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest(classes = Application.class)
-public class ArtifactCoordinatesReporitoryTest
+public class ArtifactCoordinatesRepositoryTest
 {
-
-    private static final Logger logger = LoggerFactory.getLogger(ArtifactCoordinatesReporitoryTest.class);
 
     @Inject
     private JanusGraph janusGraph;
@@ -39,7 +37,7 @@ public class ArtifactCoordinatesReporitoryTest
     
     @Inject
     private org.carlspring.strongbox.janusgraph.gremlin.repositories.ArtifactCoordinatesRepository gremlinArtifactCoordinatesRepository;
-    
+
     @Test
     public void queriesShouldWork()
     {
@@ -84,7 +82,8 @@ public class ArtifactCoordinatesReporitoryTest
     }
 
     @Test
-    public void crudShouldWork() {
+    public void crudShouldWork()
+    {
         ArtifactCoordinatesEntity artifactCoordinates = new ArtifactCoordinatesEntity();
         artifactCoordinates.setPath("org/carlspring/test-artifact-1.0.0.jar");
         artifactCoordinates.setVersion("1.0.0");
@@ -95,9 +94,11 @@ public class ArtifactCoordinatesReporitoryTest
         artifactCoordinates.setPath("org/carlspring/test-artifact-2.0.0.jar");
         artifactCoordinates.setVersion("2.0.0");
         artifactCoordinatesSaved = artifactCoordinatesRepository.save(artifactCoordinates);
+
         assertEquals(artifactCoordinates.getUuid(), artifactCoordinatesSaved.getUuid());        
         
         ArtifactCoordinatesEntity result = artifactCoordinatesRepository.findByPath("org/carlspring/test-artifact-1.0.0.jar");
+
         assertEquals("org/carlspring/test-artifact-1.0.0.jar", result.getPath());
     }
     
