@@ -1,10 +1,9 @@
 package org.carlspring.strongbox.janusgraph.graph;
 
-import java.lang.reflect.Field;
-
-import org.apache.cassandra.service.CassandraDaemon;
 import org.carlspring.strongbox.janusgraph.cassandra.CassandraEmbeddedProperties;
 import org.carlspring.strongbox.janusgraph.cassandra.CassandraShutdown;
+
+import java.lang.reflect.Field;
 
 import org.janusgraph.core.JanusGraph;
 import org.janusgraph.core.JanusGraphFactory;
@@ -21,8 +20,7 @@ public class JanusGraphConfig
 {
 
     @Bean(destroyMethod = "close")
-    public JanusGraph janusGraph(CassandraDaemon cassandra,
-                                 CassandraEmbeddedProperties cassandraEmbeddedProperties,
+    public JanusGraph janusGraph(CassandraEmbeddedProperties cassandraEmbeddedProperties,
                                  CassandraShutdown cassandraShutdown)
         throws NoSuchFieldException,
         IllegalAccessException
