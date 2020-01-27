@@ -1,9 +1,6 @@
 package org.carlspring.strongbox.janusgraph.cassandra;
 
-import javax.annotation.PreDestroy;
-
 import java.io.IOException;
-import java.util.concurrent.ExecutionException;
 
 import org.apache.cassandra.service.CassandraDaemon;
 import org.apache.cassandra.service.StorageService;
@@ -37,15 +34,6 @@ public class CassandraEmbeddedConfig
         StorageService.instance.removeShutdownHook();
 
         return cassandraDaemon;
-    }
-
-    @PreDestroy
-    public void destroy()
-        throws IOException,
-        InterruptedException,
-        ExecutionException
-    {
-        StorageService.instance.drain();
     }
 
 }
