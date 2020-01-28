@@ -36,4 +36,10 @@ public class CassandraEmbeddedConfig
         return cassandraDaemon;
     }
 
+    @Bean(destroyMethod = "shutdown")
+    public CassandraShutdown shutDownCassandra(CassandraDaemon cassandraDaemon)
+    {
+        return new CassandraShutdown(cassandraDaemon);
+    }
+
 }
