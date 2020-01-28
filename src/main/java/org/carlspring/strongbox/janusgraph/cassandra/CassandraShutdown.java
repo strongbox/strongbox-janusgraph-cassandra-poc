@@ -1,7 +1,5 @@
 package org.carlspring.strongbox.janusgraph.cassandra;
 
-import javax.inject.Inject;
-
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 
@@ -20,7 +18,6 @@ public class CassandraShutdown
 
     private CassandraDaemon cassandraDaemon;
 
-    @Inject
     public CassandraShutdown(CassandraDaemon cassandraDaemon)
     {
         this.cassandraDaemon = cassandraDaemon;
