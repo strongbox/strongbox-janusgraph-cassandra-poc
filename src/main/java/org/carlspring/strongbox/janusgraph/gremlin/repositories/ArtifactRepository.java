@@ -13,7 +13,7 @@ import org.carlspring.strongbox.janusgraph.gremlin.repositories.adapters.EntityT
 import org.springframework.stereotype.Repository;
 
 @Repository("gremlinArtifactRepository")
-public class ArtifactRepository extends GremlinVertexReposiotry<ArtifactEntity>
+public class ArtifactRepository extends GremlinVertexRepository<ArtifactEntity>
 {
 
     @Inject

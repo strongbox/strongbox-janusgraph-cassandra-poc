@@ -3,7 +3,7 @@ package org.carlspring.strongbox.janusgraph.gremlin.repositories;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.carlspring.strongbox.janusgraph.domain.DomainObject;
 
-public abstract class GremlinVertexReposiotry<E extends DomainObject> extends GremlinRepository<Vertex, E>
+public abstract class GremlinVertexRepository<E extends DomainObject> extends GremlinRepository<Vertex, E>
 {
 
     @Override
