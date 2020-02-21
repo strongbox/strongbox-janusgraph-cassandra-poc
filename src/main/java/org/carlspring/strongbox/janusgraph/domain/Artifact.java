@@ -5,7 +5,8 @@ import java.util.Set;
 
 public interface Artifact extends DomainObject
 {
-    public static final String LABEL = "Artifact";
+
+    String LABEL = "Artifact";
     
     String getStorageId();
 

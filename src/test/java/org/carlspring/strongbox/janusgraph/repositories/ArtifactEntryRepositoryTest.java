@@ -72,7 +72,7 @@ public class ArtifactEntryRepositoryTest
         artifactEntry.setRepositoryId("releases");
         artifactEntry.setSizeInBytes(123L);
         artifactEntry.setCreated(createdOn);
-        artifactEntry.setTags(new HashSet<>(Arrays.asList("release", "stabile")));
+        artifactEntry.setTags(new HashSet<>(Arrays.asList("release", "stable")));
         artifactEntry.setArtifactCoordinates(artifactCoordinates);
 
         ArtifactEntity artifactEntrySaved = artifactEntryRepository.save(artifactEntry);
@@ -94,7 +94,7 @@ public class ArtifactEntryRepositoryTest
         //TODO: fix tags
         //assertEquals(2, tags.size());
         //assertTrue(tags.contains("release"));
-        //assertTrue(tags.contains("stabile"));
+        //assertTrue(tags.contains("stable"));
     }
 
     @Test
@@ -116,7 +116,7 @@ public class ArtifactEntryRepositoryTest
          .property("storageId", "storage0")
          .property("repositoryId", "releases")
          .property("sizeInBytes", 123L)
-         .property("tags", new HashSet<>(Arrays.asList("release", "stabile")))
+         .property("tags", new HashSet<>(Arrays.asList("release", "stable")))
          .property("created", new Date())
          .as("ae")
          .addE(Edges.ARTIFACT_ARTIFACTCOORDINATES)

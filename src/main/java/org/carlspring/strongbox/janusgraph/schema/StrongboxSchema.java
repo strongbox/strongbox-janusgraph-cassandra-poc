@@ -9,12 +9,9 @@ import javax.inject.Inject;
 
 import org.apache.tinkerpop.gremlin.structure.Element;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
-import org.carlspring.strongbox.janusgraph.domain.Artifact;
-import org.carlspring.strongbox.janusgraph.domain.ArtifactCoordinates;
-import org.carlspring.strongbox.janusgraph.domain.ArtifactDependency;
-import org.carlspring.strongbox.janusgraph.domain.ArtifactGroup;
-import org.carlspring.strongbox.janusgraph.domain.Edges;
-import org.carlspring.strongbox.janusgraph.domain.RepositoryArtifactIdGroup;
+
+import org.carlspring.strongbox.janusgraph.domain.*;
+
 import org.janusgraph.core.Cardinality;
 import org.janusgraph.core.JanusGraph;
 import org.janusgraph.core.Multiplicity;
@@ -131,11 +128,14 @@ public class StrongboxSchema
         vertexLabel = jgm.getVertexLabel(RepositoryArtifactIdGroup.LABEL);
         buildIndexIfNecessary(jgm, RepositoryArtifactIdGroup.LABEL + ".uuid", Vertex.class, propertyKey,
                               vertexLabel, true).ifPresent(result::add);
-        
+
 //        EdgeLabel artifactEntryToArtifactCoordinates = jg.getEdgeLabel(ArtifactEntry.class.getSimpleName() + "_"
 //                + ArtifactCoordinates.class.getSimpleName());
 //        jgm.buildEdgeIndex(artifactEntryToArtifactCoordinates, "battlesByTime", Direction.OUT);
 
+        propertyKey = jgm.getPropertyKey("uuid");
+        vertexLabel = jgm.getVertexLabel(User.LABEL);
+        buildIndexIfNecessary(jgm, User.LABEL + ".uuid", Vertex.class, propertyKey, vertexLabel, true).ifPresent(result::add);
 
         return result;
     }
@@ -149,6 +149,7 @@ public class StrongboxSchema
         makePropertyKeyIfDoesNotExist(jgm, "sizeInBytes", Long.class);
         makePropertyKeyIfDoesNotExist(jgm, "created", String.class);
         makePropertyKeyIfDoesNotExist(jgm, "tags", String.class, Cardinality.SET);
+        makePropertyKeyIfDoesNotExist(jgm, "lastUpdated", String.class);
 
         makePropertyKeyIfDoesNotExist(jgm, "path", String.class);
         makePropertyKeyIfDoesNotExist(jgm, "version", String.class);
@@ -160,12 +161,14 @@ public class StrongboxSchema
         makeVertexLabelIfDoesNotExist(jgm, ArtifactCoordinates.LABEL);
         makeVertexLabelIfDoesNotExist(jgm, ArtifactGroup.LABEL);
         makeVertexLabelIfDoesNotExist(jgm, RepositoryArtifactIdGroup.LABEL);
+        makeVertexLabelIfDoesNotExist(jgm, User.LABEL);
 
         // Edges
         makeEdgeLabelIfDoesNotExist(jgm, Edges.ARTIFACT_ARTIFACTCOORDINATES, Multiplicity.MANY2ONE);
         makeEdgeLabelIfDoesNotExist(jgm, ArtifactDependency.LABEL, Multiplicity.MULTI);
         makeEdgeLabelIfDoesNotExist(jgm, Edges.ARTIFACTGROUP_ARTIFACT, Multiplicity.ONE2MANY);
         makeEdgeLabelIfDoesNotExist(jgm, Edges.REPOSITORYARTIFACTIDGROUP_ARTIFACTGROUP, Multiplicity.ONE2ONE);
+        makeEdgeLabelIfDoesNotExist(jgm, Edges.USER, Multiplicity.SIMPLE);
     }
 
     private Optional<String> buildIndexIfNecessary(final JanusGraphManagement jgm,
@@ -258,7 +261,6 @@ public class StrongboxSchema
             propertyKeyMaker = propertyKeyMaker.cardinality(cardinality);
         }
         propertyKeyMaker.make();
-
     }
 
 }

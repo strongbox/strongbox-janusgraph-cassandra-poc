@@ -2,7 +2,8 @@ package org.carlspring.strongbox.janusgraph.domain;
 
 public interface ArtifactCoordinates extends DomainObject
 {
-    public static final String LABEL = "ArtifactCoordinates";
+
+    String LABEL = "ArtifactCoordinates";
 
     String getVersion();
 

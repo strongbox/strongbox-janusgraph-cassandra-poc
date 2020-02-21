@@ -8,5 +8,7 @@ public interface Edges
     String ARTIFACT_ARTIFACTCOORDINATES = "Artifact_ArtifactCoordinates";
     
     String REPOSITORYARTIFACTIDGROUP_ARTIFACTGROUP = "RepositoryArtifactIdGroup_ArtifactGroup";
-    
+
+    String USER = "User";
+
 }
