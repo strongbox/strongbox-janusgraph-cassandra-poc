@@ -200,7 +200,11 @@ public class CypherQueryUtils
                 returnTokens.add(returnToken);
             }
         }
-
+        
+        if (returnTokens.isEmpty()) {
+            return cypherStatement;
+        }
+        
         // return relations subquery should be last element
         String returnRelationsClause = returnTokens.get(returnTokens.size() - 1);
         returnTokens.remove(returnTokens.size() - 1);
